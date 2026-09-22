@@ -1,0 +1,7 @@
+{
+  "name": "binding-project",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
