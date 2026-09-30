@@ -1,0 +1,29 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Productos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row class="header">
+      <ion-col>ID</ion-col>
+      <ion-col>Nombre</ion-col>
+      <ion-col>Unidades</ion-col>
+      <ion-col>Precio</ion-col>
+      <ion-col>Foto</ion-col>
+    </ion-row>
+
+    @for (product of products; track product.id) {
+      <ion-row>
+        <ion-col>{{product.id}}</ion-col>
+        <ion-col>{{product.nombre}}</ion-col>
+        <ion-col>{{product.unidades}}</ion-col>
+        <ion-col>{{product.precio}} €</ion-col>
+        <ion-col>
+          <img [src]="product.foto" width="80" alt="{{product.nombre}}">
+        </ion-col>
+      </ion-row>
+    }
+  </ion-grid>
+</ion-content>
