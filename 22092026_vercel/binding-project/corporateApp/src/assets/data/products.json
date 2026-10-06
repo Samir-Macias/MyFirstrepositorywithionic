@@ -1,0 +1,16 @@
+[
+    {
+      "id": 1,
+      "nombre": "Portátil Dell",
+      "unidades": 12,
+      "precio": 1200,
+      "foto": "assets/image/portatilDell.jpg"
+    },
+    {
+      "id": 2,
+      "nombre": "Monitor LG",
+      "unidades": 8,
+      "precio": 299,
+      "foto": "assets/image/monitorLG.webp"
+    }
+  ]

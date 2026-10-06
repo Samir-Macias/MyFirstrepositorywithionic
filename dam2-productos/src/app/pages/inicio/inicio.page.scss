@@ -1,0 +1,23 @@
+ion-content {
+  --background: var(--ion-background-color);
+  --color: var(--ion-text-color);
+}
+
+.contenedor-inicio {
+  color: var(--ion-text-color); /* Forzar que h1 y p hereden el color del texto activo */
+  
+  h1 {
+    font-weight: bold;
+    color: var(--ion-text-color);
+  }
+
+  p {
+    color: var(--ion-text-color);
+    opacity: 0.9;
+  }
+}
+
+ion-toolbar {
+  --background: var(--ion-background-color);
+  --color: var(--ion-text-color);
+}

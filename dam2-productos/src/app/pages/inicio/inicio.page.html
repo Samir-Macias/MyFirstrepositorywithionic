@@ -1,0 +1,21 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>inicio</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleTheme()">
+        <ion-icon [name]="isDark ? 'sunny-outline' : 'moon-outline'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="contenedor-inicio">
+    <h1>DAM2 - API REST</h1>
+    <p>Aplicación Ionic + Angular Standalone para consumir una API REST.</p>
+    
+    <ion-button routerLink="/productos" color="primary">
+      VER PRODUCTOS
+    </ion-button>
+  </div>
+</ion-content>

@@ -1,0 +1,7 @@
+{
+  "name": "dam2-productos",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

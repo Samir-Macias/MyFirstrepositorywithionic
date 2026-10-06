@@ -1,0 +1,83 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/inicio"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Productos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" aria-label="Cambiar tema" (click)="toggleTheme()">
+        <ion-icon [name]="isDark ? 'sunny-outline' : 'moon-outline'" ></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="page-shell">
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">Catálogo</p>
+        <h1>Productos destacados</h1>
+      </div>
+      <div class="summary-badge">
+        {{ products.length }} artículos
+      </div>
+    </div>
+
+    @if (error) {
+      <ion-card class="error-card">
+        <ion-card-header>
+          <ion-card-title>Error</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>{{ error }}</p>
+          <ion-button (click)="loadProducts()">Reintentar</ion-button>
+        </ion-card-content>
+      </ion-card>
+    } @else if (products.length === 0) {
+      <div class="empty-state">
+        <p>No hay productos disponibles.</p>
+      </div>
+    } @else {
+      <div class="product-grid">
+        @for (product of paginatedProducts; track product.id) {
+          <article class="product-card">
+            <div class="product-image-wrap">
+              <img [src]="product.thumbnail" [alt]="product.title" />
+            </div>
+
+            <div class="product-body">
+              <div class="product-meta">
+                <span class="category">{{ product.category }}</span>
+                <span class="rating">⭐ {{ product.rating }}</span>
+              </div>
+
+              <h2>{{ product.title }}</h2>
+              <p class="description">{{ product.description }}</p>
+
+              <div class="product-footer">
+                <div>
+                  <span class="price">{{ product.price | currency:'EUR' }}</span>
+                  <small>{{ product.stock }} en stock</small>
+                </div>
+                <button class="add-button" type="button">Añadir</button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+
+      <div class="pagination">
+        <ion-button size="small" fill="outline" [disabled]="currentPage === 1" (click)="changePage(-1)">
+          Anterior
+        </ion-button>
+        <span>Página {{ currentPage }} / {{ totalPages }}</span>
+        <ion-button size="small" fill="outline" [disabled]="currentPage === totalPages" (click)="changePage(1)">
+          Siguiente
+        </ion-button>
+      </div>
+    }
+  </div>
+</ion-content>
+
