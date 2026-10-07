@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/inicio"></ion-back-button>
+    </ion-buttons>
+    
+    <ion-title>Comentarios</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" aria-label="Cambiar tema" (click)="toggleTheme()">
+        <ion-icon [name]="isDark ? 'sunny-outline' : 'moon-outline'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <main class="comments-shell">
+    <header class="comments-header">
+      <h1>Comentarios</h1>
+      <p>{{ total }} comentarios</p>
+    </header>
+
+    @if (error) {
+      <section class="comments-error" role="alert">
+        <p>{{ error }}</p>
+        <ion-button (click)="loadComments()">Reintentar</ion-button>
+      </section>
+    } @else if (comments.length === 0) {
+      <p class="comments-empty">No hay comentarios disponibles.</p>
+    } @else {
+      <section class="comments-list" aria-label="Lista de comentarios">
+        @for (comment of comments; track comment.id) {
+          <article class="comment-card">
+            <h2>{{ comment.name }}</h2>
+            <p class="comment-email">{{ comment.email }}</p>
+            <p>{{ comment.body }}</p>
+          </article>
+        }
+      </section>
+    }
+  </main>
+</ion-content>

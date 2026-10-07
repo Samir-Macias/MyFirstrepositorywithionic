@@ -1,0 +1,80 @@
+:host {
+  --comments-text: #1d2736;
+  --comments-muted: #5b687a;
+  --comments-card: #ffffff;
+  --comments-border: rgba(15, 23, 42, 0.1);
+  --app-toolbar-background: #ffffff;
+  --app-toolbar-text: #1d2736;
+}
+
+:host-context(body.dark) {
+  --comments-text: #f5f7ff;
+  --comments-muted: #b8c0d9;
+  --comments-card: #161b2d;
+  --comments-border: rgba(148, 163, 184, 0.2);
+  --app-toolbar-background: #161b2d;
+  --app-toolbar-text: #f5f7ff;
+}
+
+ion-toolbar {
+  --background: var(--app-toolbar-background);
+  --color: var(--app-toolbar-text);
+}
+
+ion-content {
+  --background: var(--ion-background-color, #f4f7fb);
+  --color: var(--comments-text);
+}
+
+.comments-shell {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.comments-header {
+  margin-bottom: 20px;
+  color: var(--comments-text);
+}
+
+.comments-header h1 {
+  margin-bottom: 6px;
+  color: var(--comments-text);
+}
+
+.comments-header p,
+.comment-email {
+  color: var(--comments-muted);
+}
+
+.comments-list {
+  display: grid;
+  gap: 16px;
+}
+
+.comment-card {
+  padding: 18px;
+  color: var(--comments-text);
+  background: var(--comments-card);
+  border: 1px solid var(--comments-border);
+  border-radius: 16px;
+}
+
+.comment-card h2 {
+  margin-top: 0;
+  color: var(--comments-text);
+  font-size: 1.05rem;
+}
+
+.comment-card p {
+  color: var(--comments-text);
+  line-height: 1.5;
+}
+
+.comment-card .comment-email {
+  color: var(--comments-muted);
+}
+
+.comments-error,
+.comments-empty {
+  color: var(--comments-text);
+}
