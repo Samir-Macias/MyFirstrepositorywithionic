@@ -1,0 +1,7 @@
+{
+  "name": "formularioReactivo",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

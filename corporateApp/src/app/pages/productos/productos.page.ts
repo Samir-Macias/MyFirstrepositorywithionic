@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { 
   IonHeader, 
   IonToolbar, 
@@ -6,10 +6,12 @@ import {
   IonContent, 
   IonGrid, 
   IonRow, 
-  IonCol 
+  IonCol,
+  IonButtons
 } from '@ionic/angular';
 import { ProductsService } from '../../services/products';
 import { Product } from '../../models/product.interface';
+import { IonBackButton } from '@ionic/angular/ion-back-button';
 
 @Component({
   selector: 'app-productos',
@@ -22,13 +24,15 @@ import { Product } from '../../models/product.interface';
     IonContent, 
     IonGrid, 
     IonRow, 
-    IonCol
+    IonCol,
+    IonButtons,
+    IonBackButton
   ]
 })
 export class ProductosPage implements OnInit {
   products: Product[] = [];
 
-  constructor(private productService: ProductsService) {}
+  private readonly productService = inject(ProductsService);
 
   async ngOnInit() {
     this.products = await this.productService.getProducts();

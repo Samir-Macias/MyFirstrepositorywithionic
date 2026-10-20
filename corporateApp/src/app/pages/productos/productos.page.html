@@ -1,5 +1,8 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+    </ion-buttons>
     <ion-title>Productos</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -15,15 +18,15 @@
     </ion-row>
 
     @for (product of products; track product.id) {
-      <ion-row>
-        <ion-col>{{product.id}}</ion-col>
-        <ion-col>{{product.nombre}}</ion-col>
-        <ion-col>{{product.unidades}}</ion-col>
-        <ion-col>{{product.precio}} €</ion-col>
-        <ion-col>
-          <img [src]="product.foto" width="80" alt="{{product.nombre}}">
-        </ion-col>
-      </ion-row>
+    <ion-row>
+      <ion-col>{{product.id}}</ion-col>
+      <ion-col>{{product.nombre}}</ion-col>
+      <ion-col>{{product.unidades}}</ion-col>
+      <ion-col>{{product.precio}} €</ion-col>
+      <ion-col>
+        <img [src]="product.foto" width="80" alt="{{product.nombre}}" />
+      </ion-col>
+    </ion-row>
     }
   </ion-grid>
 </ion-content>

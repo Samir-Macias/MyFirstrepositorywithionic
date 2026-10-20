@@ -1,0 +1,97 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Formulario reactivo</ion-title>
+    <ion-buttons slot="end">
+      <ion-button type="button" (click)="toggleDarkMode()">
+        {{ isDarkMode() ? 'Modo claro' : 'Modo oscuro' }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Formulario</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <!-- Enlace del FormGroup definido en TypeScript -->
+  <form
+    class="registration-form"
+    [formGroup]="registroForm"
+    (ngSubmit)="onSubmit()"
+  >
+    <ion-list lines="full">
+      <!-- Campo Nombre -->
+      <ion-item>
+        <ion-input
+          label="Nombre completo"
+          labelPlacement="floating"
+          type="text"
+          formControlName="nombre"
+          [errorText]="'El nombre es obligatorio (mín. 3 caracteres).'"
+        >
+        </ion-input>
+      </ion-item>
+      <!-- Campo Email con teclado específico para móviles -->
+      <ion-item>
+        <ion-input
+          label="Correo Electrónico"
+          labelPlacement="floating"
+          type="email"
+          inputmode="email"
+          formControlName="email"
+          [errorText]="'Introduzca un email válido.'"
+        >
+        </ion-input>
+        
+      </ion-item>
+      <ion-item class="calendar-field">
+        <ion-input
+          label="Fecha"
+          labelPlacement="floating"
+          type="date"
+          class="calendar-input"
+          formControlName="calendario"
+          [min]="minDate"
+          [errorText]="'Selecciona hoy o una fecha posterior.'"
+        >
+        </ion-input>
+      </ion-item>
+       
+      <!-- Campo Contraseña -->
+      <ion-item>
+        <ion-input
+          label="Contraseña"
+          labelPlacement="floating"
+          type="password"
+          formControlName="password"
+          [errorText]="'Mínimo 8 caracteres, letras y números.'"
+        >
+        </ion-input>
+      </ion-item>
+    </ion-list>
+    <div class="form-actions">
+      <!-- Botón dinámico que responde al Signal -->
+      <ion-button
+        expand="block"
+        type="submit"
+        [disabled]="registroForm.invalid || isSubmitting()"
+      >
+        @if (!isSubmitting()) {
+          <span>Registrarse</span>
+        } @else {
+          <ion-spinner name="crescent"></ion-spinner>
+        }
+      </ion-button>
+      <ion-button
+        expand="block"
+        type="button"
+        [disabled]="!lastSubmittedData()"
+        (click)="downloadPdf()"
+      >
+        Descargar datos enviados en PDF
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

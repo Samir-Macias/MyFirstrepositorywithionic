@@ -1,0 +1,84 @@
+:host {
+  display: block;
+}
+
+ion-title {
+  font-size: clamp(1rem, 4vw, 1.25rem);
+}
+
+.registration-form {
+  box-sizing: border-box;
+  width: min(100% - 2rem, 42rem);
+  margin: 1.5rem auto;
+  padding: clamp(1rem, 4vw, 2rem);
+  border-radius: 1rem;
+  background: var(--ion-card-background, var(--ion-item-background, #fff));
+  box-shadow: 0 0.25rem 1.5rem rgb(0 0 0 / 10%);
+}
+
+.registration-form ion-list {
+  padding: 0;
+  background: transparent;
+}
+
+.registration-form ion-item {
+  --background: transparent;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+.registration-form ion-item.calendar-field {
+  --background: rgba(var(--ion-color-primary-rgb), 0.08);
+  --border-radius: 0.9rem;
+  --min-height: 5.25rem;
+  --padding-start: 1rem;
+  --inner-padding-end: 1rem;
+  margin-block: 0.75rem;
+  border: 1px solid var(--ion-color-primary);
+  border-radius: 0.9rem;
+  transition:
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.registration-form ion-item.calendar-field:focus-within {
+  box-shadow: 0 0 0 3px rgb(var(--ion-color-primary-rgb) / 18%);
+  transform: translateY(-1px);
+}
+
+.registration-form ion-input.calendar-input {
+  --padding-top: 0.8rem;
+  --padding-bottom: 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.form-actions {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1.25rem;
+}
+
+.form-actions ion-button {
+  width: 100%;
+  margin: 0;
+  min-height: 2.75rem;
+}
+
+@media (max-width: 360px) {
+  ion-title {
+    padding-inline: 0.5rem;
+  }
+
+  ion-buttons ion-button {
+    font-size: 0.75rem;
+    --padding-start: 0.5rem;
+    --padding-end: 0.5rem;
+  }
+
+  .registration-form {
+    width: calc(100% - 1.25rem);
+    margin-block: 0.75rem;
+    padding: 0.875rem;
+  }
+}
