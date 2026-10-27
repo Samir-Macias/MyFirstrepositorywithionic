@@ -1,0 +1,15 @@
+<button
+  class="stat-card"
+  [class.stat-card--blue]="tone() === 'blue'"
+  [class.stat-card--green]="tone() === 'green'"
+  [class.stat-card--orange]="tone() === 'orange'"
+  type="button"
+  (click)="filterSelected.emit(filter())"
+>
+  <div class="stat-card__top">
+    <p class="stat-card__label">{{ label() }}</p>
+    <span class="stat-card__mark" aria-hidden="true"></span>
+  </div>
+  <p class="stat-card__value">{{ value() }}</p>
+  <p class="stat-card__detail">{{ detail() }}</p>
+</button>

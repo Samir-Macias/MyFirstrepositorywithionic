@@ -1,0 +1,7 @@
+{
+  "name": "gestion_de_interfaces",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

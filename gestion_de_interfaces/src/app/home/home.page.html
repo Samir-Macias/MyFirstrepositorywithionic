@@ -1,0 +1,341 @@
+<ion-content [fullscreen]="true">
+  <div class="workspace">
+    <aside class="sidebar" aria-label="Navegación principal">
+      <a class="sidebar__brand" href="#overview" aria-label="Taskflow, ir al inicio">
+        <span class="sidebar__brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="m5 12 4 4L19 6" />
+            <path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9" />
+          </svg>
+        </span>
+        <span>taskflow</span>
+      </a>
+
+      <p class="sidebar__section-label">ESPACIO DE TRABAJO</p>
+      <nav class="sidebar__nav">
+        <a class="sidebar__link sidebar__link--active" href="#overview" aria-current="page">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" />
+          </svg>
+          <span>Resumen</span>
+        </a>
+        <a class="sidebar__link" href="#tasks">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 6h13M8 12h13M8 18h13" />
+            <path d="m3 6 1 1 2-2M3 12l1 1 2-2M3 18l1 1 2-2" />
+          </svg>
+          <span>Tareas</span>
+          <span class="sidebar__count">{{ pendingCount() }}</span>
+        </a>
+        <a class="sidebar__link" href="#activity">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 12h4l3-8 4 16 3-8h4" />
+          </svg>
+          <span>Actividad</span>
+        </a>
+      </nav>
+
+      <div class="sidebar__bottom">
+        <div class="sidebar__team">
+          <span class="sidebar__team-icon" aria-hidden="true">E</span>
+          <span class="sidebar__team-copy">
+            <strong>Equipo creativo</strong>
+            <small>Plan gratuito</small>
+          </span>
+          <span class="sidebar__team-menu" aria-hidden="true">•••</span>
+        </div>
+        <button class="sidebar__profile" type="button" aria-label="Perfil de Alex Morgan">
+          <span class="sidebar__avatar" aria-hidden="true">AM</span>
+          <span class="sidebar__profile-copy">
+            <strong>Alex Morgan</strong>
+            <small>Administrador</small>
+          </span>
+          <span class="sidebar__profile-menu" aria-hidden="true">⌄</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content" id="overview">
+      <header class="topbar">
+        <div class="topbar__breadcrumb">
+          <span>Espacio de trabajo</span>
+          <span aria-hidden="true">/</span>
+          <strong>Resumen</strong>
+        </div>
+        <div class="topbar__actions">
+          <label class="search" for="task-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m20 20-4-4" />
+            </svg>
+            <input
+              id="task-search"
+              type="search"
+              placeholder="Buscar tareas..."
+              autocomplete="off"
+              (input)="updateSearch($event)"
+            />
+            <kbd>/</kbd>
+          </label>
+          <button class="topbar__icon-button" type="button" aria-label="Notificaciones">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+              <path d="M10 21h4" />
+            </svg>
+            <span class="topbar__notification-dot" aria-hidden="true"></span>
+          </button>
+          <span class="topbar__avatar" aria-hidden="true">AM</span>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <section class="welcome" aria-labelledby="welcome-title">
+          <div>
+            <p class="welcome__eyebrow">MARTES, 27 DE OCTUBRE DE 2026</p>
+            <h1 id="welcome-title">Buenos días, Alex <span aria-hidden="true">✦</span></h1>
+            <p class="welcome__description">Aquí tienes el resumen de lo que pasa en tu equipo.</p>
+          </div>
+          <button class="welcome__button" type="button" disabled title="Disponible próximamente">
+            <span aria-hidden="true">＋</span>
+            Nueva tarea
+          </button>
+        </section>
+
+        <section class="stats-grid" aria-label="Resumen de productividad">
+          <app-stat-card
+            label="En curso"
+            [value]="inProgressCount().toString()"
+            detail="Tareas en progreso"
+            tone="violet"
+            filter="IN_PROGRESS"
+            (filterSelected)="setFilter($event)"
+          />
+          <app-stat-card
+            label="Completadas"
+            [value]="completedCount().toString()"
+            detail="Esta semana"
+            tone="green"
+            filter="COMPLETED"
+            (filterSelected)="setFilter($event)"
+          />
+          <app-stat-card
+            label="Horas registradas"
+            value="24,5 h"
+            detail="De 32 h estimadas"
+            tone="blue"
+            filter="ALL"
+            (filterSelected)="setFilter($event)"
+          />
+          <app-stat-card
+            label="Próximas a vencer"
+            value="2"
+            detail="En los próximos 3 días"
+            tone="orange"
+            filter="TODO"
+            (filterSelected)="setFilter($event)"
+          />
+        </section>
+
+        <div class="dashboard-grid">
+          <section class="panel tasks-panel" id="tasks" aria-labelledby="tasks-title">
+            <div class="panel__header">
+              <div>
+                <h2 id="tasks-title">Mis tareas</h2>
+                <p>Organiza y sigue el trabajo de tu equipo.</p>
+              </div>
+              <button class="panel__text-button" type="button" disabled>
+                Ver todas <span aria-hidden="true">→</span>
+              </button>
+            </div>
+
+            <div class="filter-tabs" role="group" aria-label="Filtrar tareas por estado">
+              <button
+                type="button"
+                [class.filter-tabs__button--active]="activeFilter() === 'ALL'"
+                [attr.aria-pressed]="activeFilter() === 'ALL'"
+                (click)="setFilter('ALL')"
+              >
+                Todas
+              </button>
+              <button
+                type="button"
+                [class.filter-tabs__button--active]="activeFilter() === 'TODO'"
+                [attr.aria-pressed]="activeFilter() === 'TODO'"
+                (click)="setFilter('TODO')"
+              >
+                Por hacer
+              </button>
+              <button
+                type="button"
+                [class.filter-tabs__button--active]="activeFilter() === 'IN_PROGRESS'"
+                [attr.aria-pressed]="activeFilter() === 'IN_PROGRESS'"
+                (click)="setFilter('IN_PROGRESS')"
+              >
+                En curso
+              </button>
+              <button
+                type="button"
+                [class.filter-tabs__button--active]="activeFilter() === 'COMPLETED'"
+                [attr.aria-pressed]="activeFilter() === 'COMPLETED'"
+                (click)="setFilter('COMPLETED')"
+              >
+                Completadas
+              </button>
+            </div>
+
+            <div class="task-list" aria-live="polite">
+              @for (task of visibleTasks(); track task.id) {
+                <app-task-card
+                  [task]="task"
+                  (completionToggled)="toggleTaskCompletion($event)"
+                />
+              } @empty {
+                <p class="task-list__empty">No hay tareas que coincidan con esta búsqueda.</p>
+              }
+            </div>
+          </section>
+
+          <div class="side-panels">
+            <section class="panel progress-panel" aria-labelledby="progress-title">
+              <div class="panel__header">
+                <div>
+                  <h2 id="progress-title">Progreso semanal</h2>
+                  <p>Tu ritmo esta semana</p>
+                </div>
+                <span class="progress-panel__period">Esta semana <span aria-hidden="true">⌄</span></span>
+              </div>
+              <div
+                class="progress-panel__chart"
+                role="img"
+                aria-label="Gráfico de líneas de actividad semanal de ejemplo: lunes 4, martes 6, miércoles 5, jueves 8, viernes 6, sábado 3 y domingo 2 tareas"
+              >
+                <svg viewBox="0 0 280 140" aria-hidden="true" focusable="false">
+                  <path class="progress-panel__grid-line" d="M24 24H270 M24 52H270 M24 80H270 M24 108H270" />
+                  <path class="progress-panel__area" d="M28 82 L66 56 L104 68 L142 30 L180 53 L218 94 L256 108 L256 108 L28 108 Z" />
+                  <path class="progress-panel__line" d="M28 82 L66 56 L104 68 L142 30 L180 53 L218 94 L256 108" />
+                  <circle cx="28" cy="82" r="3.5" />
+                  <circle cx="66" cy="56" r="3.5" />
+                  <circle cx="104" cy="68" r="3.5" />
+                  <circle cx="142" cy="30" r="3.5" />
+                  <circle cx="180" cy="53" r="3.5" />
+                  <circle cx="218" cy="94" r="3.5" />
+                  <circle cx="256" cy="108" r="3.5" />
+                </svg>
+                <div class="progress-panel__days" aria-hidden="true">
+                  <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+                </div>
+              </div>
+              <div class="progress-panel__summary">
+                <span class="progress-panel__summary-mark" aria-hidden="true"></span>
+                <span>Actividad del equipo</span>
+                <strong>Datos de ejemplo</strong>
+              </div>
+            </section>
+
+            <section class="panel completion-panel" aria-labelledby="completion-title">
+              <div class="panel__header">
+                <div>
+                  <h2 id="completion-title">Estado de tareas</h2>
+                  <p>Distribución actual del espacio.</p>
+                </div>
+              </div>
+              <div class="completion-panel__content">
+                <div
+                  class="completion-chart"
+                  role="img"
+                  [attr.aria-label]="
+                    'Estado de ' +
+                    totalTaskCount() +
+                    ' tareas: ' +
+                    todoCount() +
+                    ' por hacer, ' +
+                    inProgressCount() +
+                    ' en curso y ' +
+                    completedCount() +
+                    ' completadas'
+                  "
+                >
+                  <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+                    <circle class="completion-chart__track" cx="60" cy="60" r="44" />
+                    <g class="completion-chart__segments">
+                      <circle
+                        class="completion-chart__segment completion-chart__segment--todo"
+                        cx="60"
+                        cy="60"
+                        r="44"
+                        [attr.stroke-dasharray]="statusArcLength(todoCount())"
+                      />
+                      <circle
+                        class="completion-chart__segment completion-chart__segment--progress"
+                        cx="60"
+                        cy="60"
+                        r="44"
+                        [attr.stroke-dasharray]="statusArcLength(inProgressCount())"
+                        [attr.stroke-dashoffset]="statusArcOffset(todoCount())"
+                      />
+                      <circle
+                        class="completion-chart__segment completion-chart__segment--complete"
+                        cx="60"
+                        cy="60"
+                        r="44"
+                        [attr.stroke-dasharray]="statusArcLength(completedCount())"
+                        [attr.stroke-dashoffset]="statusArcOffset(todoCount() + inProgressCount())"
+                      />
+                    </g>
+                  </svg>
+                  <span class="completion-chart__value">{{ totalTaskCount() }}</span>
+                  <span class="completion-chart__caption">tareas</span>
+                </div>
+                <ul class="completion-legend">
+                  <li>
+                    <span class="completion-legend__dot completion-legend__dot--todo"></span>
+                    <span>Por hacer</span>
+                    <strong>{{ todoCount() }}</strong>
+                  </li>
+                  <li>
+                    <span class="completion-legend__dot completion-legend__dot--progress"></span>
+                    <span>En curso</span>
+                    <strong>{{ inProgressCount() }}</strong>
+                  </li>
+                  <li>
+                    <span class="completion-legend__dot completion-legend__dot--complete"></span>
+                    <span>Completadas</span>
+                    <strong>{{ completedCount() }}</strong>
+                  </li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="panel activity-panel" id="activity" aria-labelledby="activity-title">
+              <div class="panel__header">
+                <div>
+                  <h2 id="activity-title">Actividad reciente</h2>
+                  <p>Últimos movimientos del equipo.</p>
+                </div>
+              </div>
+              <ol class="activity-list">
+                <li class="activity-list__item">
+                  <span class="activity-list__avatar activity-list__avatar--purple" aria-hidden="true">LM</span>
+                  <p><strong>Lucía Martín</strong> completó una subtarea <span>hace 12 min</span></p>
+                </li>
+                <li class="activity-list__item">
+                  <span class="activity-list__avatar activity-list__avatar--blue" aria-hidden="true">DR</span>
+                  <p><strong>Diego Ruiz</strong> añadió una tarea nueva <span>hace 1 h</span></p>
+                </li>
+                <li class="activity-list__item">
+                  <span class="activity-list__avatar activity-list__avatar--orange" aria-hidden="true">MG</span>
+                  <p><strong>Marta Gil</strong> actualizó una descripción <span>hace 3 h</span></p>
+                </li>
+              </ol>
+            </section>
+          </div>
+        </div>
+
+        <p class="page-footnote">Datos de demostración · Próximamente conectados con Supabase</p>
+      </div>
+    </main>
+  </div>
+</ion-content>
