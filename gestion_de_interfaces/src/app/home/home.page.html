@@ -47,11 +47,11 @@
           </span>
           <span class="sidebar__team-menu" aria-hidden="true">•••</span>
         </div>
-        <button class="sidebar__profile" type="button" aria-label="Perfil de Alex Morgan">
-          <span class="sidebar__avatar" aria-hidden="true">AM</span>
+        <button class="sidebar__profile" type="button" (click)="signOut()" [attr.aria-label]="'Cerrar sesión de ' + userName()">
+          <span class="sidebar__avatar" aria-hidden="true">{{ userInitials() }}</span>
           <span class="sidebar__profile-copy">
-            <strong>Alex Morgan</strong>
-            <small>Administrador</small>
+            <strong>{{ userName() }}</strong>
+            <small>Cerrar sesión</small>
           </span>
           <span class="sidebar__profile-menu" aria-hidden="true">⌄</span>
         </button>
@@ -87,15 +87,19 @@
             </svg>
             <span class="topbar__notification-dot" aria-hidden="true"></span>
           </button>
-          <span class="topbar__avatar" aria-hidden="true">AM</span>
+          <span class="topbar__avatar" aria-hidden="true">{{ userInitials() }}</span>
         </div>
       </header>
 
       <div class="page-content">
+        @if (pageError()) {
+          <p class="task-list__error" role="alert">{{ pageError() }}</p>
+        }
+
         <section class="welcome" aria-labelledby="welcome-title">
           <div>
             <p class="welcome__eyebrow">MARTES, 27 DE OCTUBRE DE 2026</p>
-            <h1 id="welcome-title">Buenos días, Alex <span aria-hidden="true">✦</span></h1>
+            <h1 id="welcome-title">Buenos días, {{ userName() }} <span aria-hidden="true">✦</span></h1>
             <p class="welcome__description">Aquí tienes el resumen de lo que pasa en tu equipo.</p>
           </div>
           <button class="welcome__button" type="button" disabled title="Disponible próximamente">
@@ -116,25 +120,25 @@
           <app-stat-card
             label="Completadas"
             [value]="completedCount().toString()"
-            detail="Esta semana"
+            detail="En tu espacio"
             tone="green"
             filter="COMPLETED"
             (filterSelected)="setFilter($event)"
           />
           <app-stat-card
             label="Horas registradas"
-            value="24,5 h"
-            detail="De 32 h estimadas"
+            [value]="formatHours(loggedHours())"
+            [detail]="'De ' + formatHours(estimatedHours()) + ' estimadas'"
             tone="blue"
             filter="ALL"
             (filterSelected)="setFilter($event)"
           />
           <app-stat-card
-            label="Próximas a vencer"
-            value="2"
-            detail="En los próximos 3 días"
+            label="Tareas totales"
+            [value]="totalTaskCount().toString()"
+            detail="En tu espacio actual"
             tone="orange"
-            filter="TODO"
+            filter="ALL"
             (filterSelected)="setFilter($event)"
           />
         </section>
@@ -187,13 +191,17 @@
             </div>
 
             <div class="task-list" aria-live="polite">
-              @for (task of visibleTasks(); track task.id) {
-                <app-task-card
-                  [task]="task"
-                  (completionToggled)="toggleTaskCompletion($event)"
-                />
-              } @empty {
+              @if (isLoadingTasks()) {
+                <p class="task-list__empty" role="status">Cargando tareas...</p>
+              } @else {
+                @for (task of visibleTasks(); track task.id) {
+                  <app-task-card
+                    [task]="task"
+                    (completionToggled)="toggleTaskCompletion($event)"
+                  />
+                } @empty {
                 <p class="task-list__empty">No hay tareas que coincidan con esta búsqueda.</p>
+                }
               }
             </div>
           </section>
@@ -313,28 +321,29 @@
               <div class="panel__header">
                 <div>
                   <h2 id="activity-title">Actividad reciente</h2>
-                  <p>Últimos movimientos del equipo.</p>
+                  <p>Últimos eventos registrados.</p>
                 </div>
               </div>
               <ol class="activity-list">
-                <li class="activity-list__item">
-                  <span class="activity-list__avatar activity-list__avatar--purple" aria-hidden="true">LM</span>
-                  <p><strong>Lucía Martín</strong> completó una subtarea <span>hace 12 min</span></p>
-                </li>
-                <li class="activity-list__item">
-                  <span class="activity-list__avatar activity-list__avatar--blue" aria-hidden="true">DR</span>
-                  <p><strong>Diego Ruiz</strong> añadió una tarea nueva <span>hace 1 h</span></p>
-                </li>
-                <li class="activity-list__item">
-                  <span class="activity-list__avatar activity-list__avatar--orange" aria-hidden="true">MG</span>
-                  <p><strong>Marta Gil</strong> actualizó una descripción <span>hace 3 h</span></p>
-                </li>
+                @for (entry of activity(); track entry.id) {
+                  <li class="activity-list__item">
+                    <span class="activity-list__avatar activity-list__avatar--purple" aria-hidden="true">
+                      {{ entry.initials }}
+                    </span>
+                    <p>
+                      <strong>{{ entry.userName }}</strong> {{ entry.description }}
+                      <span>{{ entry.timeLabel }}</span>
+                    </p>
+                  </li>
+                } @empty {
+                  <li class="activity-list__empty">Aún no hay eventos para mostrar.</li>
+                }
               </ol>
             </section>
           </div>
         </div>
 
-        <p class="page-footnote">Datos de demostración · Próximamente conectados con Supabase</p>
+        <p class="page-footnote">Tareas e historial sincronizados con Supabase · Gráfico semanal ilustrativo</p>
       </div>
     </main>
   </div>

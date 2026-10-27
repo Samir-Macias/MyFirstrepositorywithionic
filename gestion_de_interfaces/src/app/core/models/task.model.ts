@@ -13,6 +13,8 @@ export interface Task {
   readonly tags: readonly string[];
   readonly subtasksCompleted: number;
   readonly subtasksTotal: number;
+  readonly estimatedHours: number;
+  readonly loggedHours: number;
 }
 
 export type TaskStatusFilter = 'ALL' | TaskStatus;

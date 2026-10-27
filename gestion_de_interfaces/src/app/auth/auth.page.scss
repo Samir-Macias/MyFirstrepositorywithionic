@@ -1,0 +1,137 @@
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+.auth-page {
+  display: grid;
+  min-height: 100%;
+  padding: 2rem 1rem;
+  place-items: center;
+  background: #f6f7fb;
+}
+
+.auth-card {
+  width: min(100%, 28rem);
+  padding: clamp(1.5rem, 6vw, 2.5rem);
+  border: 1px solid #e4e8f0;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 1.25rem 3.5rem rgb(35 48 71 / 8%);
+
+  h1 {
+    margin: 0.4rem 0;
+    color: #233047;
+    font-size: clamp(1.7rem, 6vw, 2rem);
+  }
+
+  &__eyebrow {
+    margin: 2rem 0 0;
+    color: #59677e;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  &__description {
+    margin: 0 0 1.5rem;
+    color: #59677e;
+    line-height: 1.5;
+  }
+}
+
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #273a70;
+  font-size: 1.3rem;
+  font-weight: 750;
+  text-decoration: none;
+
+  &__mark {
+    display: grid;
+    width: 1.8rem;
+    height: 1.8rem;
+    place-items: center;
+    border-radius: 0.5rem;
+    background: #273a70;
+    color: #fff;
+  }
+}
+
+.auth-form {
+  display: grid;
+  gap: 0.6rem;
+
+  label {
+    margin-top: 0.45rem;
+    color: #233047;
+    font-size: 0.85rem;
+    font-weight: 650;
+  }
+
+  input {
+    width: 100%;
+    min-height: 2.9rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid #cbd2e0;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #233047;
+    font: inherit;
+
+    &:focus-visible {
+      border-color: #4559ad;
+      outline: 3px solid rgb(69 89 173 / 20%);
+    }
+  }
+
+  &__submit {
+    min-height: 2.9rem;
+    margin-top: 0.8rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: #273a70;
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+
+    &:disabled {
+      cursor: wait;
+      opacity: 0.7;
+    }
+  }
+}
+
+.auth-message {
+  margin: 0.4rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+
+  &--error {
+    color: #a62f43;
+  }
+
+  &--notice {
+    color: #245c43;
+  }
+}
+
+.auth-switch {
+  margin: 1.4rem 0 0;
+  color: #59677e;
+  font-size: 0.88rem;
+  text-align: center;
+
+  button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #273a70;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+  }
+}

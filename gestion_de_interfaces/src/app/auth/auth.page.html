@@ -1,0 +1,79 @@
+<ion-content [fullscreen]="true">
+  <main class="auth-page">
+    <section class="auth-card" aria-labelledby="auth-title">
+    <a class="auth-brand" routerLink="/auth" aria-label="Taskflow">
+      <span class="auth-brand__mark" aria-hidden="true">✓</span>
+      <span>taskflow</span>
+    </a>
+
+    <p class="auth-card__eyebrow">ESPACIO DE TRABAJO</p>
+    <h1 id="auth-title">{{ isSignUp() ? 'Crea tu cuenta' : 'Bienvenido de nuevo' }}</h1>
+    <p class="auth-card__description">
+      {{
+        isSignUp()
+          ? 'Regístrate para empezar a organizar tus tareas.'
+          : 'Inicia sesión para continuar con tus tareas.'
+      }}
+    </p>
+
+    <form class="auth-form" (ngSubmit)="submit()">
+      @if (isSignUp()) {
+        <label for="full-name">Nombre</label>
+        <input
+          id="full-name"
+          name="fullName"
+          type="text"
+          autocomplete="name"
+          required
+          [(ngModel)]="fullName"
+        />
+      }
+
+      <label for="email">Correo electrónico</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        required
+        [(ngModel)]="email"
+      />
+
+      <label for="password">Contraseña</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        [autocomplete]="isSignUp() ? 'new-password' : 'current-password'"
+        minlength="6"
+        required
+        [(ngModel)]="password"
+      />
+
+      @if (errorMessage()) {
+        <p class="auth-message auth-message--error" role="alert">{{ errorMessage() }}</p>
+      }
+      @if (noticeMessage()) {
+        <p class="auth-message auth-message--notice" role="status">{{ noticeMessage() }}</p>
+      }
+
+      <button class="auth-form__submit" type="submit" [disabled]="isSubmitting()">
+        {{
+          isSubmitting()
+            ? 'Procesando...'
+            : isSignUp()
+              ? 'Crear cuenta'
+              : 'Iniciar sesión'
+        }}
+      </button>
+    </form>
+
+    <p class="auth-switch">
+      {{ isSignUp() ? '¿Ya tienes una cuenta?' : '¿Aún no tienes una cuenta?' }}
+      <button type="button" (click)="toggleMode()">
+        {{ isSignUp() ? 'Inicia sesión' : 'Regístrate' }}
+      </button>
+    </p>
+    </section>
+  </main>
+</ion-content>
