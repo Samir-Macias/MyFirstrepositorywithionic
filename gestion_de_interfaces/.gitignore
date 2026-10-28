@@ -65,8 +65,7 @@ yarn-error.log
 testem.log
 /typings
 
-# Local Supabase browser configuration (use supabase-config.example.json as a template).
-/src/assets/supabase-config.json
+ 
 
 # System files
 .DS_Store
