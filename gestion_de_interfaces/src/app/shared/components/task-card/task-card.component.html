@@ -42,5 +42,23 @@
       </div>
       <span class="task-card__due">{{ task().dueLabel }}</span>
     </div>
+    <div class="task-card__actions">
+      <button
+        type="button"
+        [attr.aria-label]="'Editar tarea: ' + task().title"
+        (click)="editRequested.emit(task())"
+      >
+        Editar
+      </button>
+      @if (canDelete()) {
+        <button
+          type="button"
+          [attr.aria-label]="'Eliminar tarea: ' + task().title"
+          (click)="deleteRequested.emit(task())"
+        >
+          Eliminar
+        </button>
+      }
+    </div>
   </div>
 </article>

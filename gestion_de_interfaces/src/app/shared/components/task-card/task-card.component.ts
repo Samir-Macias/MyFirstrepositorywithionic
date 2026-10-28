@@ -8,5 +8,8 @@ import { Task } from '../../../core/models/task.model';
 })
 export class TaskCardComponent {
   readonly task = input.required<Task>();
+  readonly canDelete = input(false);
   readonly completionToggled = output<string>();
+  readonly editRequested = output<Task>();
+  readonly deleteRequested = output<Task>();
 }

@@ -1,8 +1,18 @@
 import { inject, Injectable } from '@angular/core';
-import { RealtimeChannel } from '@supabase/supabase-js';
-import { Task, TaskPriority, TaskStatus } from '../models/task.model';
+import { RealtimeChannel, User } from '@supabase/supabase-js';
+import { Subtask, Task, TaskPriority, TaskStatus } from '../models/task.model';
 import { ActivityEntry, ActivityLogRow, TaskRow } from '../models/task-row.model';
 import { SupabaseClientService } from '../supabase/supabase-client.service';
+
+export interface TaskInput {
+  readonly title: string;
+  readonly description: string;
+  readonly status: TaskStatus;
+  readonly priority: TaskPriority;
+  readonly tags: readonly string[];
+  readonly estimatedHours: number;
+  readonly loggedHours: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class TaskDataService {
@@ -20,6 +30,79 @@ export class TaskDataService {
     }
 
     return (data as TaskRow[]).map((row) => this.toTask(row));
+  }
+
+  async createTask(input: TaskInput, user: Pick<User, 'id' | 'email' | 'user_metadata'>): Promise<Task> {
+    const client = await this.supabase.getClient();
+    const userName = this.userDisplayName(user);
+    const { data, error } = await client
+      .from('tasks')
+      .insert({
+        title: this.readTitle(input.title),
+        description: input.description.trim() || null,
+        status: input.status,
+        priority: input.priority,
+        assigned_user_id: user.id,
+        assigned_user_name: userName,
+        assigned_user_email: user.email ?? null,
+        created_by_user_id: user.id,
+        subtasks: [],
+        tags: this.readTags(input.tags),
+        estimated_hours: this.readHours(input.estimatedHours, 'estimated_hours'),
+        logged_hours: this.readHours(input.loggedHours, 'logged_hours'),
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      throw new Error(`No se pudo crear la tarea: ${error.message}`);
+    }
+
+    return this.toTask(data as TaskRow);
+  }
+
+  async updateTask(taskId: string, input: TaskInput): Promise<Task> {
+    const client = await this.supabase.getClient();
+    const { data, error } = await client
+      .from('tasks')
+      .update({
+        title: this.readTitle(input.title),
+        description: input.description.trim() || null,
+        status: input.status,
+        priority: input.priority,
+        tags: this.readTags(input.tags),
+        estimated_hours: this.readHours(input.estimatedHours, 'estimated_hours'),
+        logged_hours: this.readHours(input.loggedHours, 'logged_hours'),
+      })
+      .eq('id', taskId)
+      .select('*')
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`No se pudo guardar la tarea: ${error.message}`);
+    }
+    if (!data) {
+      throw new Error('No se actualizó ninguna tarea. Comprueba los permisos RLS.');
+    }
+
+    return this.toTask(data as TaskRow);
+  }
+
+  async deleteTask(taskId: string): Promise<void> {
+    const client = await this.supabase.getClient();
+    const { data, error } = await client
+      .from('tasks')
+      .delete()
+      .eq('id', taskId)
+      .select('id')
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`No se pudo eliminar la tarea: ${error.message}`);
+    }
+    if (!data) {
+      throw new Error('No se eliminó ninguna tarea. Comprueba que seas su creador.');
+    }
   }
 
   async loadActivity(): Promise<ActivityEntry[]> {
@@ -83,12 +166,14 @@ export class TaskDataService {
     const tags = this.readArray(row.tags)
       .map((tag) => this.readLabel(tag))
       .filter((tag): tag is string => tag !== null);
-    const subtasks = this.readArray(row.subtasks);
+    const subtasks = this.readSubtasks(row.subtasks);
     const completedSubtasks = subtasks.filter((subtask) => this.isCompleted(subtask)).length;
     const assignedUserName = row.assigned_user_name?.trim() || 'Sin asignar';
 
     return {
       id: row.id,
+      createdByUserId: row.created_by_user_id,
+      createdAt: row.created_at,
       title: row.title,
       description: row.description ?? '',
       status: this.readStatus(row.status),
@@ -97,6 +182,7 @@ export class TaskDataService {
       assignedUserInitials: this.initials(assignedUserName),
       dueLabel: 'Sin fecha límite',
       tags,
+      subtasks,
       subtasksCompleted: completedSubtasks,
       subtasksTotal: subtasks.length,
       estimatedHours: this.readHours(row.estimated_hours, 'estimated_hours'),
@@ -134,6 +220,28 @@ export class TaskDataService {
     return Array.isArray(value) ? value : [];
   }
 
+  private readSubtasks(value: unknown): Subtask[] {
+    return this.readArray(value).flatMap((subtask, index) => {
+      if (typeof subtask === 'string') {
+        return [{ id: `subtask-${index + 1}`, title: subtask, completed: false }];
+      }
+      if (typeof subtask !== 'object' || subtask === null) {
+        return [];
+      }
+
+      const object = subtask as Record<string, unknown>;
+      if (typeof object['title'] !== 'string') {
+        return [];
+      }
+
+      return [{
+        id: typeof object['id'] === 'string' ? object['id'] : `subtask-${index + 1}`,
+        title: object['title'],
+        completed: this.isCompleted(object),
+      }];
+    });
+  }
+
   private readLabel(value: unknown): string | null {
     if (typeof value === 'string') {
       return value;
@@ -166,6 +274,28 @@ export class TaskDataService {
       throw new Error(`La columna ${column} contiene un valor de horas no válido.`);
     }
     return hours;
+  }
+
+  private readTitle(value: string): string {
+    const title = value.trim();
+    if (!title) {
+      throw new Error('El título de la tarea es obligatorio.');
+    }
+    return title;
+  }
+
+  private readTags(tags: readonly string[]): string[] {
+    return tags.map((tag) => tag.trim()).filter(Boolean);
+  }
+
+  private userDisplayName(
+    user: Pick<User, 'id' | 'email' | 'user_metadata'>,
+  ): string {
+    const fullName = user.user_metadata['full_name'];
+    if (typeof fullName === 'string' && fullName.trim()) {
+      return fullName.trim();
+    }
+    return user.email ?? 'Usuario';
   }
 
   private readStatus(status: TaskStatus): TaskStatus {

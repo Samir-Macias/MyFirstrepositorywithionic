@@ -7,5 +7,8 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular';
   imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
-  constructor() {}
+  constructor() {
+    document.documentElement.dataset['theme'] =
+      localStorage.getItem('taskflow-theme') === 'dark' ? 'dark' : 'light';
+  }
 }

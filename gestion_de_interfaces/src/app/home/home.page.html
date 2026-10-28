@@ -76,16 +76,35 @@
               type="search"
               placeholder="Buscar tareas..."
               autocomplete="off"
+              [value]="searchTerm()"
               (input)="updateSearch($event)"
             />
             <kbd>/</kbd>
           </label>
-          <button class="topbar__icon-button" type="button" aria-label="Notificaciones">
+          <a class="topbar__icon-button" href="#activity" aria-label="Ir a actividad reciente">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
               <path d="M10 21h4" />
             </svg>
-            <span class="topbar__notification-dot" aria-hidden="true"></span>
+          </a>
+          <button
+            class="theme-toggle"
+            type="button"
+            [attr.aria-label]="isDarkMode() ? 'Activar modo claro' : 'Activar modo noche'"
+            [attr.aria-pressed]="isDarkMode()"
+            [title]="isDarkMode() ? 'Activar modo claro' : 'Activar modo noche'"
+            (click)="toggleTheme()"
+          >
+            @if (isDarkMode()) {
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z" />
+              </svg>
+            }
           </button>
           <span class="topbar__avatar" aria-hidden="true">{{ userInitials() }}</span>
         </div>
@@ -98,11 +117,11 @@
 
         <section class="welcome" aria-labelledby="welcome-title">
           <div>
-            <p class="welcome__eyebrow">MARTES, 27 DE OCTUBRE DE 2026</p>
+            <p class="welcome__eyebrow">{{ todayLabel }}</p>
             <h1 id="welcome-title">Buenos días, {{ userName() }} <span aria-hidden="true">✦</span></h1>
             <p class="welcome__description">Aquí tienes el resumen de lo que pasa en tu equipo.</p>
           </div>
-          <button class="welcome__button" type="button" disabled title="Disponible próximamente">
+          <button class="welcome__button" type="button" (click)="openCreateTask()">
             <span aria-hidden="true">＋</span>
             Nueva tarea
           </button>
@@ -150,7 +169,7 @@
                 <h2 id="tasks-title">Mis tareas</h2>
                 <p>Organiza y sigue el trabajo de tu equipo.</p>
               </div>
-              <button class="panel__text-button" type="button" disabled>
+              <button class="panel__text-button" type="button" (click)="clearTaskFilters()">
                 Ver todas <span aria-hidden="true">→</span>
               </button>
             </div>
@@ -197,7 +216,10 @@
                 @for (task of visibleTasks(); track task.id) {
                   <app-task-card
                     [task]="task"
+                    [canDelete]="task.createdByUserId === currentUserId()"
                     (completionToggled)="toggleTaskCompletion($event)"
+                    (editRequested)="openEditTask($event)"
+                    (deleteRequested)="deleteTask($event)"
                   />
                 } @empty {
                 <p class="task-list__empty">No hay tareas que coincidan con esta búsqueda.</p>
@@ -218,28 +240,26 @@
               <div
                 class="progress-panel__chart"
                 role="img"
-                aria-label="Gráfico de líneas de actividad semanal de ejemplo: lunes 4, martes 6, miércoles 5, jueves 8, viernes 6, sábado 3 y domingo 2 tareas"
+                [attr.aria-label]="weeklyChart().description"
               >
                 <svg viewBox="0 0 280 140" aria-hidden="true" focusable="false">
                   <path class="progress-panel__grid-line" d="M24 24H270 M24 52H270 M24 80H270 M24 108H270" />
-                  <path class="progress-panel__area" d="M28 82 L66 56 L104 68 L142 30 L180 53 L218 94 L256 108 L256 108 L28 108 Z" />
-                  <path class="progress-panel__line" d="M28 82 L66 56 L104 68 L142 30 L180 53 L218 94 L256 108" />
-                  <circle cx="28" cy="82" r="3.5" />
-                  <circle cx="66" cy="56" r="3.5" />
-                  <circle cx="104" cy="68" r="3.5" />
-                  <circle cx="142" cy="30" r="3.5" />
-                  <circle cx="180" cy="53" r="3.5" />
-                  <circle cx="218" cy="94" r="3.5" />
-                  <circle cx="256" cy="108" r="3.5" />
+                  <path class="progress-panel__area" [attr.d]="weeklyChart().areaPath" />
+                  <path class="progress-panel__line" [attr.d]="weeklyChart().linePath" />
+                  @for (point of weeklyChart().points; track point.label) {
+                    <circle [attr.cx]="point.x" [attr.cy]="point.y" r="3.5" />
+                  }
                 </svg>
                 <div class="progress-panel__days" aria-hidden="true">
-                  <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+                  @for (point of weeklyChart().points; track point.label) {
+                    <span>{{ point.label }}</span>
+                  }
                 </div>
               </div>
               <div class="progress-panel__summary">
                 <span class="progress-panel__summary-mark" aria-hidden="true"></span>
-                <span>Actividad del equipo</span>
-                <strong>Datos de ejemplo</strong>
+                <span>Tareas creadas</span>
+                <strong>{{ weeklyChart().total }} esta semana</strong>
               </div>
             </section>
 
@@ -268,9 +288,10 @@
                 >
                   <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">
                     <circle class="completion-chart__track" cx="60" cy="60" r="44" />
-                    <g class="completion-chart__segments">
+                    <g class="completion-chart__segments" transform="rotate(-90 60 60)">
                       <circle
                         class="completion-chart__segment completion-chart__segment--todo"
+                        fill="none"
                         cx="60"
                         cy="60"
                         r="44"
@@ -278,6 +299,7 @@
                       />
                       <circle
                         class="completion-chart__segment completion-chart__segment--progress"
+                        fill="none"
                         cx="60"
                         cy="60"
                         r="44"
@@ -286,6 +308,7 @@
                       />
                       <circle
                         class="completion-chart__segment completion-chart__segment--complete"
+                        fill="none"
                         cx="60"
                         cy="60"
                         r="44"
@@ -343,8 +366,142 @@
           </div>
         </div>
 
-        <p class="page-footnote">Tareas e historial sincronizados con Supabase · Gráfico semanal ilustrativo</p>
+        <p class="page-footnote">Tareas e historial sincronizados con Supabase</p>
       </div>
     </main>
   </div>
+
+  @if (isTaskFormOpen()) {
+    <div class="task-dialog-backdrop">
+      <section
+        class="task-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="task-dialog-title"
+      >
+        <div class="task-dialog__header">
+          <div>
+            <p class="task-dialog__eyebrow">GESTIÓN DE TAREAS</p>
+            <h2 id="task-dialog-title">
+              {{ editingTaskId() ? 'Editar tarea' : 'Nueva tarea' }}
+            </h2>
+          </div>
+          <button
+            class="task-dialog__close"
+            type="button"
+            aria-label="Cerrar formulario"
+            [disabled]="isSavingTask()"
+            (click)="closeTaskForm()"
+          >
+            ×
+          </button>
+        </div>
+
+        <form class="task-form" (ngSubmit)="saveTask()">
+          <label for="task-title">Título</label>
+          <input
+            id="task-title"
+            name="title"
+            type="text"
+            maxlength="160"
+            required
+            autofocus
+            [(ngModel)]="taskForm.title"
+          />
+
+          <label for="task-description">Descripción</label>
+          <textarea
+            id="task-description"
+            name="description"
+            rows="3"
+            maxlength="2000"
+            [(ngModel)]="taskForm.description"
+          ></textarea>
+
+          <div class="task-form__row">
+            <div>
+              <label for="task-status">Estado</label>
+              <select id="task-status" name="status" [(ngModel)]="taskForm.status">
+                <option value="TODO">Por hacer</option>
+                <option value="IN_PROGRESS">En curso</option>
+                <option value="COMPLETED">Completada</option>
+              </select>
+            </div>
+            <div>
+              <label for="task-priority">Prioridad</label>
+              <select id="task-priority" name="priority" [(ngModel)]="taskForm.priority">
+                <option value="LOW">Baja</option>
+                <option value="MEDIUM">Media</option>
+                <option value="HIGH">Alta</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="task-tags">Etiquetas <span>(separadas por comas)</span></label>
+          <input
+            id="task-tags"
+            name="tags"
+            type="text"
+            placeholder="Diseño, Cliente"
+            [(ngModel)]="taskForm.tags"
+          />
+
+          <div class="task-form__row">
+            <div>
+              <label for="task-estimated-hours">Horas estimadas</label>
+              <input
+                id="task-estimated-hours"
+                name="estimatedHours"
+                type="number"
+                min="0"
+                step="0.5"
+                required
+                [(ngModel)]="taskForm.estimatedHours"
+              />
+            </div>
+            <div>
+              <label for="task-logged-hours">Horas registradas</label>
+              <input
+                id="task-logged-hours"
+                name="loggedHours"
+                type="number"
+                min="0"
+                step="0.5"
+                required
+                [(ngModel)]="taskForm.loggedHours"
+              />
+            </div>
+          </div>
+
+          @if (taskFormError()) {
+            <p class="task-dialog__error" role="alert">{{ taskFormError() }}</p>
+          }
+
+          <div class="task-dialog__actions">
+            @if (editingTaskId() && editingTaskCanDelete()) {
+              <button
+                class="task-dialog__delete"
+                type="button"
+                [disabled]="isSavingTask()"
+                (click)="deleteEditingTask()"
+              >
+                Eliminar
+              </button>
+            }
+            <button
+              class="task-dialog__cancel"
+              type="button"
+              [disabled]="isSavingTask()"
+              (click)="closeTaskForm()"
+            >
+              Cancelar
+            </button>
+            <button class="task-dialog__save" type="submit" [disabled]="isSavingTask()">
+              {{ isSavingTask() ? 'Guardando...' : 'Guardar tarea' }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
 </ion-content>

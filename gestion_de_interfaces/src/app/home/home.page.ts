@@ -1,17 +1,28 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonContent } from '@ionic/angular';
-import { Task, TaskStatusFilter } from '../core/models/task.model';
+import { Task, TaskPriority, TaskStatus, TaskStatusFilter } from '../core/models/task.model';
 import { AuthService } from '../core/auth/auth.service';
 import { ActivityEntry } from '../core/models/task-row.model';
-import { TaskDataService } from '../core/tasks/task-data.service';
+import { TaskDataService, TaskInput } from '../core/tasks/task-data.service';
 import { StatCardComponent } from '../shared/components/stat-card/stat-card.component';
 import { TaskCardComponent } from '../shared/components/task-card/task-card.component';
+
+interface TaskFormState {
+  title: string;
+  description: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  tags: string;
+  estimatedHours: number;
+  loggedHours: number;
+}
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
-  imports: [IonContent, StatCardComponent, TaskCardComponent],
+  imports: [FormsModule, IonContent, StatCardComponent, TaskCardComponent],
 })
 export class HomePage implements OnInit, OnDestroy {
   private readonly taskData = inject(TaskDataService);
@@ -23,10 +34,28 @@ export class HomePage implements OnInit, OnDestroy {
   readonly activity = signal<ActivityEntry[]>([]);
   readonly isLoadingTasks = signal(true);
   readonly pageError = signal('');
+  readonly isDarkMode = signal(false);
+  readonly isTaskFormOpen = signal(false);
+  readonly isSavingTask = signal(false);
+  readonly taskFormError = signal('');
+  readonly editingTaskId = signal<string | null>(null);
+  readonly currentUserId = computed(() => this.auth.currentUser()?.id ?? null);
+  readonly editingTaskCanDelete = computed(() => {
+    const task = this.tasks().find((item) => item.id === this.editingTaskId());
+    return task?.createdByUserId === this.currentUserId();
+  });
+  readonly todayLabel = new Intl.DateTimeFormat('es-ES', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date()).toLocaleUpperCase('es');
+  taskForm: TaskFormState = this.emptyTaskForm();
   private unsubscribeRealtime: (() => void) | null = null;
   private destroyed = false;
 
   async ngOnInit(): Promise<void> {
+    this.isDarkMode.set(localStorage.getItem('taskflow-theme') === 'dark');
+    this.applyTheme();
     await this.refreshTasks();
 
     try {
@@ -155,8 +184,75 @@ export class HomePage implements OnInit, OnDestroy {
     this.tasks().reduce((total, task) => total + task.estimatedHours, 0),
   );
 
+  readonly weeklyChart = computed(() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const firstDay = new Date(today);
+    firstDay.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    const dayFormatter = new Intl.DateTimeFormat('es-ES', { weekday: 'short' });
+    const counts = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(firstDay);
+      date.setDate(firstDay.getDate() + index);
+      return {
+        date,
+        label: dayFormatter.format(date).replace('.', ''),
+        count: 0,
+      };
+    });
+
+    for (const task of this.tasks()) {
+      const createdAt = new Date(task.createdAt);
+      if (!Number.isFinite(createdAt.getTime())) {
+        continue;
+      }
+      const taskDay = new Date(
+        createdAt.getFullYear(),
+        createdAt.getMonth(),
+        createdAt.getDate(),
+      );
+      if (taskDay > today) {
+        continue;
+      }
+      const dayIndex = Math.round((taskDay.getTime() - firstDay.getTime()) / 86_400_000);
+      if (dayIndex >= 0 && dayIndex < counts.length) {
+        counts[dayIndex].count += 1;
+      }
+    }
+
+    const maxCount = Math.max(...counts.map((item) => item.count), 1);
+    const points = counts.map((day, index) => ({
+      ...day,
+      x: 28 + index * 38,
+      y: 108 - (day.count / maxCount) * 78,
+    }));
+    const linePath = points.map((point, index) =>
+      `${index === 0 ? 'M' : 'L'}${point.x} ${point.y}`,
+    ).join(' ');
+
+    return {
+      points,
+      linePath,
+      areaPath: `${linePath} L256 108 L28 108 Z`,
+      total: counts.reduce((total, day) => total + day.count, 0),
+      description: `Tareas creadas durante los últimos siete días: ${counts
+        .map((day) => `${day.label} ${day.count}`)
+        .join(', ')}`,
+    };
+  });
+
   formatHours(value: number): string {
     return `${new Intl.NumberFormat('es-ES', { maximumFractionDigits: 1 }).format(value)} h`;
+  }
+
+  toggleTheme(): void {
+    const isDark = !this.isDarkMode();
+    this.isDarkMode.set(isDark);
+    this.applyTheme();
+    localStorage.setItem('taskflow-theme', isDark ? 'dark' : 'light');
+  }
+
+  private applyTheme(): void {
+    document.documentElement.dataset['theme'] = this.isDarkMode() ? 'dark' : 'light';
   }
 
   readonly chartTaskTotal = computed(() => Math.max(this.totalTaskCount(), 1));
@@ -193,10 +289,136 @@ export class HomePage implements OnInit, OnDestroy {
       this.tasks.update((tasks) =>
         tasks.map((item) => (item.id === taskId ? { ...item, status } : item)),
       );
+      await this.refreshActivity();
     } catch (error) {
       this.pageError.set(
         error instanceof Error ? error.message : 'No se pudo actualizar la tarea.',
       );
     }
+  }
+
+  openCreateTask(): void {
+    this.taskForm = this.emptyTaskForm();
+    this.editingTaskId.set(null);
+    this.taskFormError.set('');
+    this.isTaskFormOpen.set(true);
+  }
+
+  openEditTask(task: Task): void {
+    this.taskForm = {
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+      tags: task.tags.join(', '),
+      estimatedHours: task.estimatedHours,
+      loggedHours: task.loggedHours,
+    };
+    this.editingTaskId.set(task.id);
+    this.taskFormError.set('');
+    this.isTaskFormOpen.set(true);
+  }
+
+  closeTaskForm(): void {
+    if (!this.isSavingTask()) {
+      this.isTaskFormOpen.set(false);
+    }
+  }
+
+  async saveTask(): Promise<void> {
+    if (this.isSavingTask()) {
+      return;
+    }
+
+    this.isSavingTask.set(true);
+    this.taskFormError.set('');
+    const input: TaskInput = {
+      title: this.taskForm.title,
+      description: this.taskForm.description,
+      status: this.taskForm.status,
+      priority: this.taskForm.priority,
+      tags: this.taskForm.tags.split(','),
+      estimatedHours: Number(this.taskForm.estimatedHours),
+      loggedHours: Number(this.taskForm.loggedHours),
+    };
+
+    try {
+      const taskId = this.editingTaskId();
+      let savedTask: Task;
+      if (taskId) {
+        savedTask = await this.taskData.updateTask(taskId, input);
+        this.tasks.update((tasks) => tasks.map((task) => (task.id === taskId ? savedTask : task)));
+      } else {
+        const user = this.auth.currentUser();
+        if (!user) {
+          throw new Error('Tu sesión ha caducado. Inicia sesión de nuevo para crear tareas.');
+        }
+        savedTask = await this.taskData.createTask(input, user);
+        this.tasks.update((tasks) => [savedTask, ...tasks]);
+      }
+
+      this.isTaskFormOpen.set(false);
+      void this.refreshActivity();
+    } catch (error) {
+      this.taskFormError.set(
+        error instanceof Error ? error.message : 'No se pudo guardar la tarea.',
+      );
+    } finally {
+      this.isSavingTask.set(false);
+    }
+  }
+
+  async deleteTask(task: Task): Promise<void> {
+    if (!window.confirm(`¿Eliminar la tarea «${task.title}»? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    this.pageError.set('');
+    try {
+      await this.taskData.deleteTask(task.id);
+      this.tasks.update((tasks) => tasks.filter((item) => item.id !== task.id));
+      if (this.editingTaskId() === task.id) {
+        this.isTaskFormOpen.set(false);
+      }
+      await this.refreshActivity();
+    } catch (error) {
+      this.pageError.set(
+        error instanceof Error ? error.message : 'No se pudo eliminar la tarea.',
+      );
+    }
+  }
+
+  async deleteEditingTask(): Promise<void> {
+    const task = this.tasks().find((item) => item.id === this.editingTaskId());
+    if (task) {
+      await this.deleteTask(task);
+    }
+  }
+
+  clearTaskFilters(): void {
+    this.searchTerm.set('');
+    this.activeFilter.set('ALL');
+  }
+
+  private async refreshActivity(): Promise<void> {
+    try {
+      this.activity.set(await this.taskData.loadActivity());
+    } catch (error) {
+      this.pageError.set(
+        error instanceof Error ? error.message : 'No se pudo cargar la actividad.',
+      );
+    }
+  }
+
+  private emptyTaskForm(): TaskFormState {
+    return {
+      title: '',
+      description: '',
+      status: 'TODO',
+      priority: 'MEDIUM',
+      tags: '',
+      estimatedHours: 0,
+      loggedHours: 0,
+    };
   }
 }

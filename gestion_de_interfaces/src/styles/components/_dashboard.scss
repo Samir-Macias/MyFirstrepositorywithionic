@@ -3,7 +3,7 @@
 
 .workspace {
   min-height: 100%;
-  background: #f8f9fc;
+  background: v.$color-page-bg;
   color: v.$color-text-main;
   font-family: v.$font-stack;
 }
@@ -47,7 +47,7 @@
 
   &__section-label {
     margin: 1.5rem 0 0.6rem;
-    color: #62677b;
+    color: v.$color-text-muted;
     font-size: 0.63rem;
     font-weight: 750;
     letter-spacing: 0.1em;
@@ -75,7 +75,7 @@
 
     &:hover,
     &--active {
-      background: #f1efff;
+      background: v.$color-primary-soft;
       color: v.$color-primary;
     }
 
@@ -97,7 +97,7 @@
     margin-left: auto;
     place-items: center;
     border-radius: 999px;
-    background: #fff;
+    background: v.$color-surface;
     color: v.$color-text-muted;
     font-size: 0.68rem;
   }
@@ -150,7 +150,7 @@
     place-items: center;
     border: 1px solid v.$color-border;
     border-radius: 0.7rem;
-    background: #fff;
+    background: v.$color-surface;
     color: v.$color-text-muted;
     cursor: pointer;
 
@@ -182,10 +182,64 @@
     flex: 0 0 auto;
     place-items: center;
     border-radius: 50%;
-    background: #e9e5ff;
-    color: #5d4ac7;
+    background: v.$color-avatar-bg;
+    color: v.$color-avatar-text;
     font-size: 0.68rem;
     font-weight: 750;
+  }
+}
+
+.theme-toggle {
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid v.$color-border;
+  border-radius: 0.7rem;
+  background: v.$color-surface;
+  color: v.$color-text-main;
+  cursor: pointer;
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+  }
+
+  &:hover {
+    background: v.$color-surface-muted;
+  }
+}
+
+.theme-toggle {
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid v.$color-border;
+  border-radius: 0.7rem;
+  background: v.$color-surface;
+  color: v.$color-text-main;
+  cursor: pointer;
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+  }
+
+  &:hover {
+    background: v.$color-surface-muted;
   }
 }
 
@@ -199,8 +253,8 @@
   padding: 0 0.7rem;
   border: 1px solid v.$color-border;
   border-radius: 0.7rem;
-  background: #fff;
-  color: #62677b;
+  background: v.$color-surface;
+  color: v.$color-text-muted;
 
   svg {
     width: 1rem;
@@ -222,7 +276,7 @@
     font-size: 0.8rem;
 
     &::placeholder {
-      color: #62677b;
+      color: v.$color-text-muted;
     }
   }
 
@@ -295,10 +349,20 @@
     font: inherit;
     font-size: 0.82rem;
     font-weight: 650;
-    opacity: 0.55;
+    cursor: pointer;
+    transition: background 160ms ease;
 
     span {
       font-size: 1.1rem;
+    }
+
+    &:hover {
+      background: #5545c4;
+    }
+
+    &:focus-visible {
+      outline: 3px solid v.$color-focus;
+      outline-offset: 3px;
     }
   }
 }
@@ -356,14 +420,19 @@
     font: inherit;
     font-size: 0.75rem;
     font-weight: 650;
-    opacity: 0.55;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
 .filter-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.15rem;
-  overflow-x: auto;
+  overflow: visible;
   margin: 1rem -0.25rem 0;
   border-bottom: 1px solid v.$color-border;
 
@@ -403,12 +472,27 @@
 }
 
 .task-list {
+  max-height: 34rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding-right: 0.35rem;
+
+  &::-webkit-scrollbar {
+    width: 0.45rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: v.$color-border;
+  }
+
   &__error {
     margin: 0 0 1rem;
     padding: 0.75rem 1rem;
-    border: 1px solid #e8b8c0;
+    border: 1px solid v.$color-danger-border;
     border-radius: 0.5rem;
-    background: #fff5f6;
+    background: v.$color-danger-bg;
     color: #a62f43;
     font-size: 0.85rem;
   }
@@ -419,6 +503,187 @@
     color: v.$color-text-muted;
     font-size: 0.85rem;
     text-align: center;
+  }
+}
+
+.task-card__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  margin-top: 0.55rem;
+
+  button {
+    padding: 0.25rem 0.45rem;
+    border: 0;
+    border-radius: 0.35rem;
+    background: transparent;
+    color: v.$color-primary;
+    font: inherit;
+    font-size: 0.68rem;
+    cursor: pointer;
+
+    &:hover {
+      background: v.$color-primary-soft;
+    }
+
+    &:focus-visible {
+      outline: 2px solid v.$color-focus;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.task-dialog-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  overflow-y: auto;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(18 24 43 / 55%);
+}
+
+.task-dialog {
+  width: min(100%, 34rem);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: 1.4rem;
+  border: 1px solid v.$color-border;
+  border-radius: 1rem;
+  background: v.$color-surface;
+  box-shadow: 0 1.5rem 4rem rgb(18 24 43 / 22%);
+
+  &__header,
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+  }
+
+  &__eyebrow {
+    margin: 0 0 0.35rem;
+    color: v.$color-text-muted;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  &__close {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 0;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: v.$color-text-muted;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  &__actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+  }
+
+  &__save,
+  &__cancel,
+  &__delete {
+    min-height: 2.5rem;
+    padding: 0 0.9rem;
+    border: 1px solid v.$color-border;
+    border-radius: 0.6rem;
+    background: v.$color-surface;
+    color: v.$color-text-main;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 650;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: wait;
+      opacity: 0.65;
+    }
+  }
+
+  &__save {
+    border-color: v.$color-primary;
+    background: v.$color-primary;
+    color: #fff;
+  }
+
+  &__delete {
+    margin-right: auto;
+    border-color: v.$color-danger-border;
+    color: #a62f43;
+  }
+
+  &__error {
+    margin: 0.8rem 0 0;
+    color: #a62f43;
+    font-size: 0.8rem;
+  }
+}
+
+.task-form {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1.15rem;
+
+  label {
+    margin-top: 0.4rem;
+    color: v.$color-text-main;
+    font-size: 0.78rem;
+    font-weight: 650;
+
+    span {
+      color: v.$color-text-muted;
+      font-weight: 400;
+    }
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    min-height: 2.55rem;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid v.$color-border;
+    border-radius: 0.55rem;
+    background: v.$color-surface;
+    color: v.$color-text-main;
+    font: inherit;
+    font-size: 0.82rem;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: v.$color-focus;
+    outline: 3px solid rgb(137 124 240 / 15%);
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+
+    > div {
+      display: grid;
+      gap: 0.55rem;
+    }
   }
 }
 
@@ -463,7 +728,7 @@
   }
 
   &__area {
-    fill: rgb(103 87 217 / 12%);
+    fill: v.$color-chart-area;
   }
 
   &__line {
@@ -479,7 +744,7 @@
     justify-content: space-around;
     margin-top: -0.1rem;
     padding: 0 0.2rem;
-    color: #62677b;
+    color: v.$color-text-muted;
     font-size: 0.62rem;
   }
 
@@ -497,127 +762,132 @@
     }
   }
 
-  .completion-panel {
-    &__content {
-      display: grid;
-      grid-template-columns: minmax(7rem, 0.9fr) minmax(0, 1fr);
-      align-items: center;
-      gap: 0.9rem;
-      margin-top: 1.1rem;
-    }
-  }
-
-  .completion-chart {
-    position: relative;
-    width: min(100%, 9rem);
-    justify-self: center;
-    aspect-ratio: 1;
-
-    svg {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    &__track,
-    &__segment {
-      fill: none;
-      stroke-width: 13;
-    }
-
-    &__track {
-      stroke: #eeeff5;
-    }
-
-    &__segments {
-      transform: rotate(-90deg);
-      transform-origin: 50% 50%;
-    }
-
-    &__segment {
-      stroke-linecap: butt;
-
-      &--todo {
-        stroke: v.$color-orange;
-      }
-
-      &--progress {
-        stroke: v.$color-primary;
-      }
-
-      &--complete {
-        stroke: v.$color-green;
-      }
-    }
-
-    &__value,
-    &__caption {
-      position: absolute;
-      left: 50%;
-      display: block;
-      width: max-content;
-      transform: translate(-50%, -50%);
-    }
-
-    &__value {
-      top: 45%;
-      color: v.$color-text-main;
-      font-size: 1.45rem;
-      font-weight: 750;
-    }
-
-    &__caption {
-      top: 61%;
-      color: v.$color-text-muted;
-      font-size: 0.68rem;
-    }
-  }
-
-  .completion-legend {
-    display: grid;
-    gap: 0.85rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-
-    li {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 0.4rem;
-      color: v.$color-text-muted;
-      font-size: 0.68rem;
-    }
-
-    strong {
-      color: v.$color-text-main;
-      font-size: 0.72rem;
-    }
-
-    &__dot {
-      width: 0.52rem;
-      height: 0.52rem;
-      border-radius: 50%;
-
-      &--todo {
-        background: v.$color-orange;
-      }
-
-      &--progress {
-        background: v.$color-primary;
-      }
-
-      &--complete {
-        background: v.$color-green;
-      }
-    }
-  }
-
   &__summary-mark {
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 50%;
     background: v.$color-primary;
+  }
+}
+
+.completion-panel {
+  &__content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.35rem;
+  }
+}
+
+.completion-chart {
+  position: relative;
+  width: min(100%, 11rem);
+  justify-self: center;
+  aspect-ratio: 1;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__track,
+  &__segment {
+    fill: none;
+    stroke-width: 11;
+  }
+
+  &__track {
+    stroke: v.$color-chart-track;
+  }
+
+  &__segment {
+    stroke-linecap: butt;
+
+    &--todo {
+      stroke: v.$color-orange;
+    }
+
+    &--progress {
+      stroke: v.$color-primary;
+    }
+
+    &--complete {
+      stroke: v.$color-green;
+    }
+  }
+
+  &__value,
+  &__caption {
+    position: absolute;
+    left: 50%;
+    display: block;
+    width: max-content;
+    transform: translate(-50%, -50%);
+  }
+
+  &__value {
+    top: 45%;
+    color: v.$color-text-main;
+    font-size: 1.45rem;
+    font-weight: 750;
+  }
+
+  &__caption {
+    top: 61%;
+    color: v.$color-text-muted;
+    font-size: 0.68rem;
+  }
+}
+
+.completion-legend {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.55rem;
+    color: v.$color-text-muted;
+    font-size: 0.75rem;
+  }
+
+  strong {
+    color: v.$color-text-main;
+    font-size: 0.8rem;
+  }
+
+  &__dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+
+    &--todo {
+      background: v.$color-orange;
+    }
+
+    &--progress {
+      background: v.$color-primary;
+    }
+
+    &--complete {
+      background: v.$color-green;
+    }
+  }
+
+  @media (max-width: 390px) {
+    .completion-panel__content {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .completion-chart {
+      width: min(100%, 10rem);
+    }
   }
 }
 
@@ -648,7 +918,7 @@
 
     p span {
       display: block;
-      color: #62677b;
+      color: v.$color-text-muted;
       font-size: 0.65rem;
     }
   }
@@ -673,15 +943,15 @@
     }
 
     &--orange {
-      background: #fff1df;
-      color: #be7621;
+      background: v.$color-avatar-orange-bg;
+      color: v.$color-avatar-orange-text;
     }
   }
 }
 
 .page-footnote {
   margin: 1rem 0 0;
-  color: #62677b;
+  color: v.$color-text-muted;
   font-size: 0.68rem;
   text-align: right;
 }
@@ -793,7 +1063,7 @@
       padding: 0.65rem;
       border: 1px solid v.$color-border;
       border-radius: 0.7rem;
-      background: #fff;
+      background: v.$color-surface;
     }
 
     &__team-icon {
@@ -803,8 +1073,8 @@
       flex: 0 0 auto;
       place-items: center;
       border-radius: 0.55rem;
-      background: #e9e5ff;
-      color: #5d4ac7;
+      background: v.$color-avatar-bg;
+      color: v.$color-avatar-text;
       font-size: 0.8rem;
       font-weight: 750;
     }
@@ -850,8 +1120,8 @@
       flex: 0 0 auto;
       place-items: center;
       border-radius: 50%;
-      background: #e9e5ff;
-      color: #5d4ac7;
+      background: v.$color-avatar-bg;
+      color: v.$color-avatar-text;
       font-size: 0.62rem;
       font-weight: 750;
     }

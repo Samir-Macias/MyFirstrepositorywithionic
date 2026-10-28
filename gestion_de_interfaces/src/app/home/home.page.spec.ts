@@ -14,21 +14,42 @@ describe('HomePage', () => {
     loadTasks: ReturnType<typeof vi.fn>;
     loadActivity: ReturnType<typeof vi.fn>;
     setStatus: ReturnType<typeof vi.fn>;
+    createTask: ReturnType<typeof vi.fn>;
+    updateTask: ReturnType<typeof vi.fn>;
+    deleteTask: ReturnType<typeof vi.fn>;
     subscribeToChanges: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
+    localStorage.removeItem('taskflow-theme');
+    document.documentElement.removeAttribute('data-theme');
+    const user = {
+      id: 'user-1',
+      email: 'lucia@example.test',
+      user_metadata: { full_name: 'Lucía Martín' },
+    };
     taskData = {
       loadTasks: vi.fn().mockResolvedValue(sampleTasks()),
       loadActivity: vi.fn().mockResolvedValue([]),
       setStatus: vi.fn().mockResolvedValue(undefined),
+      createTask: vi.fn().mockImplementation(async (input) => ({
+        ...sampleTasks()[0],
+        id: 'task-new',
+        title: input.title,
+      })),
+      updateTask: vi.fn().mockImplementation(async (taskId, input) => ({
+        ...sampleTasks()[0],
+        id: taskId,
+        title: input.title,
+      })),
+      deleteTask: vi.fn().mockResolvedValue(undefined),
       subscribeToChanges: vi.fn().mockResolvedValue(() => undefined),
     };
 
     await TestBed.configureTestingModule({
       providers: [
         { provide: TaskDataService, useValue: taskData },
-        { provide: AuthService, useValue: { currentUser: signal(null), signOut: vi.fn() } },
+        { provide: AuthService, useValue: { currentUser: signal(user), signOut: vi.fn() } },
         provideRouter([]),
       ],
     }).compileComponents();
@@ -38,6 +59,11 @@ describe('HomePage', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    localStorage.removeItem('taskflow-theme');
+    document.documentElement.removeAttribute('data-theme');
   });
 
   it('should create', () => {
@@ -59,6 +85,54 @@ describe('HomePage', () => {
     expect(component.tasks().find((task) => task.id === 'task-1')?.status).toBe('COMPLETED');
     expect(component.completedCount()).toBe(2);
     expect(component.inProgressCount()).toBe(0);
+    expect(component.statusArcLength(component.todoCount())).toBe('138.23 276.46');
+  });
+
+  it('creates a task and adds it to the dashboard after Supabase confirms it', async () => {
+    component.openCreateTask();
+    component.taskForm.title = 'Nueva tarea';
+    component.taskForm.description = 'Descripción';
+    component.taskForm.tags = 'Equipo, Diseño';
+    await component.saveTask();
+
+    expect(taskData.createTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Nueva tarea',
+        tags: ['Equipo', ' Diseño'],
+      }),
+      expect.objectContaining({ id: 'user-1' }),
+    );
+    expect(component.tasks()[0]).toEqual(expect.objectContaining({ id: 'task-new' }));
+    expect(component.isTaskFormOpen()).toBe(false);
+  });
+
+  it('keeps the task form open and displays a persistence error', async () => {
+    component.openCreateTask();
+    component.taskForm.title = 'No guardar';
+    taskData.createTask.mockRejectedValue(new Error('Permiso RLS denegado'));
+
+    await component.saveTask();
+
+    expect(component.isTaskFormOpen()).toBe(true);
+    expect(component.taskFormError()).toBe('Permiso RLS denegado');
+    expect(component.tasks()).toHaveLength(4);
+  });
+
+  it('updates task details and clears the active search and status filter', async () => {
+    component.openEditTask(sampleTasks()[0]);
+    component.taskForm.title = 'Propuesta actualizada';
+    await component.saveTask();
+
+    expect(taskData.updateTask).toHaveBeenCalledWith(
+      'task-1',
+      expect.objectContaining({ title: 'Propuesta actualizada' }),
+    );
+    expect(component.tasks()[0].title).toBe('Propuesta actualizada');
+
+    component.searchTerm.set('sin coincidencia');
+    component.setFilter('COMPLETED');
+    component.clearTaskFilters();
+    expect(component.visibleTasks()).toHaveLength(4);
   });
 
   it('keeps task status unchanged and reports a persistence error', async () => {
@@ -103,11 +177,42 @@ describe('HomePage', () => {
     expect(component.formatHours(component.loggedHours())).toBe('24,5 h');
   });
 
+  it('calculates weekly chart totals from task creation dates', () => {
+    const now = new Date();
+    component.tasks.set([
+      { ...sampleTasks()[0], createdAt: now.toISOString() },
+      { ...sampleTasks()[1], createdAt: now.toISOString() },
+    ]);
+
+    expect(component.weeklyChart().total).toBe(2);
+    expect(component.weeklyChart().points.reduce((total, point) => total + point.count, 0)).toBe(2);
+    expect(component.weeklyChart().linePath).toContain('M28');
+  });
+
+  it('toggles and persists the night theme', () => {
+    component.toggleTheme();
+    fixture.detectChanges();
+
+    expect(component.isDarkMode()).toBe(true);
+    expect(document.documentElement.dataset['theme']).toBe('dark');
+    expect(localStorage.getItem('taskflow-theme')).toBe('dark');
+    expect(fixture.nativeElement.querySelector('.theme-toggle')?.getAttribute('aria-pressed')).toBe(
+      'true',
+    );
+
+    component.toggleTheme();
+    fixture.detectChanges();
+    expect(document.documentElement.dataset['theme']).toBe('light');
+    expect(localStorage.getItem('taskflow-theme')).toBe('light');
+  });
+
   it('renders the line and doughnut charts without bar-chart markup', () => {
     const page = fixture.nativeElement as HTMLElement;
 
     expect(page.querySelector('.progress-panel__line')).not.toBeNull();
-    expect(page.querySelector('.completion-chart__segments')).not.toBeNull();
+    const segments = page.querySelector('.completion-chart__segments');
+    expect(segments?.getAttribute('transform')).toBe('rotate(-90 60 60)');
+    expect(page.querySelector('.completion-chart__segment')?.getAttribute('fill')).toBe('none');
     expect(page.querySelector('.progress-panel__bars')).toBeNull();
   });
 
@@ -125,6 +230,8 @@ function sampleTasks(): Task[] {
   return [
     {
       id: 'task-1',
+      createdByUserId: 'user-1',
+      createdAt: '2026-10-27T10:00:00Z',
       title: 'Preparar propuesta para el cliente',
       description: 'Revisar el briefing y cerrar el primer borrador.',
       status: 'IN_PROGRESS',
@@ -133,6 +240,7 @@ function sampleTasks(): Task[] {
       assignedUserInitials: 'LM',
       dueLabel: 'Sin fecha límite',
       tags: ['Diseño', 'Cliente'],
+      subtasks: [],
       subtasksCompleted: 2,
       subtasksTotal: 4,
       estimatedHours: 8,
@@ -140,6 +248,8 @@ function sampleTasks(): Task[] {
     },
     {
       id: 'task-2',
+      createdByUserId: 'user-1',
+      createdAt: '2026-10-27T10:00:00Z',
       title: 'Revisión de métricas del sprint',
       description: 'Compartir los resultados en la reunión de equipo.',
       status: 'TODO',
@@ -148,6 +258,7 @@ function sampleTasks(): Task[] {
       assignedUserInitials: 'DR',
       dueLabel: 'Sin fecha límite',
       tags: ['Equipo'],
+      subtasks: [],
       subtasksCompleted: 0,
       subtasksTotal: 3,
       estimatedHours: 8,
@@ -155,6 +266,8 @@ function sampleTasks(): Task[] {
     },
     {
       id: 'task-3',
+      createdByUserId: 'user-1',
+      createdAt: '2026-10-27T10:00:00Z',
       title: 'Actualizar documentación del producto',
       description: 'Añadir los últimos cambios del flujo de registro.',
       status: 'TODO',
@@ -163,6 +276,7 @@ function sampleTasks(): Task[] {
       assignedUserInitials: 'MG',
       dueLabel: 'Sin fecha límite',
       tags: ['Documentación'],
+      subtasks: [],
       subtasksCompleted: 1,
       subtasksTotal: 3,
       estimatedHours: 8,
@@ -170,6 +284,8 @@ function sampleTasks(): Task[] {
     },
     {
       id: 'task-4',
+      createdByUserId: 'user-1',
+      createdAt: '2026-10-27T10:00:00Z',
       title: 'Preparar recursos para la presentación',
       description: 'Organizar capturas y materiales para la demo.',
       status: 'COMPLETED',
@@ -178,6 +294,7 @@ function sampleTasks(): Task[] {
       assignedUserInitials: 'PL',
       dueLabel: 'Sin fecha límite',
       tags: ['Producto'],
+      subtasks: [],
       subtasksCompleted: 3,
       subtasksTotal: 3,
       estimatedHours: 8,

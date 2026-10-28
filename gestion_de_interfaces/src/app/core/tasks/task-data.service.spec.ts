@@ -8,9 +8,12 @@ describe('TaskDataService', () => {
     select: ReturnType<typeof vi.fn>;
     order: ReturnType<typeof vi.fn>;
     limit: ReturnType<typeof vi.fn>;
+    insert: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
     eq: ReturnType<typeof vi.fn>;
     maybeSingle: ReturnType<typeof vi.fn>;
+    single: ReturnType<typeof vi.fn>;
   };
   let realtimeHandler: ((payload: unknown) => void) | undefined;
   let subscribeCallback:
@@ -27,32 +30,22 @@ describe('TaskDataService', () => {
       select: vi.fn(),
       order: vi.fn(),
       limit: vi.fn(),
+      insert: vi.fn(),
       update: vi.fn(),
+      delete: vi.fn(),
       eq: vi.fn(),
       maybeSingle: vi.fn(),
+      single: vi.fn(),
     };
     query.select.mockReturnValue(query);
+    query.insert.mockReturnValue(query);
     query.update.mockReturnValue(query);
+    query.delete.mockReturnValue(query);
     query.eq.mockReturnValue(query);
+    query.single.mockResolvedValue({ data: sampleTaskRow(), error: null });
     query.order.mockResolvedValue({
       data: [
-        {
-          id: 'task-1',
-          title: 'Preparar informe',
-          description: null,
-          status: 'TODO',
-          priority: 'HIGH',
-          assigned_user_id: null,
-          assigned_user_name: 'Lucía Martín',
-          assigned_user_email: null,
-          created_by_user_id: 'user-1',
-          subtasks: [{ title: 'Revisar datos', completed: true }, { title: 'Redactar' }],
-          tags: ['Equipo', { label: 'Informe' }],
-          estimated_hours: 3,
-          logged_hours: 1,
-          created_at: '2026-10-27T10:00:00Z',
-          updated_at: '2026-10-27T10:00:00Z',
-        },
+        sampleTaskRow(),
       ],
       error: null,
     });
@@ -148,6 +141,71 @@ describe('TaskDataService', () => {
     );
   });
 
+  it('creates a task with the authenticated owner and normalized fields', async () => {
+    const user = {
+      id: 'user-1',
+      email: 'lucia@example.test',
+      user_metadata: { full_name: 'Lucía Martín' },
+    };
+
+    await service.createTask(
+      {
+        title: '  Nueva tarea  ',
+        description: '  Descripción  ',
+        status: 'TODO',
+        priority: 'HIGH',
+        tags: ['Equipo', ' Informe ', ''],
+        estimatedHours: 3,
+        loggedHours: 0,
+      },
+      user,
+    );
+
+    expect(query.insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Nueva tarea',
+        description: 'Descripción',
+        created_by_user_id: 'user-1',
+        assigned_user_id: 'user-1',
+        assigned_user_name: 'Lucía Martín',
+        tags: ['Equipo', 'Informe'],
+        subtasks: [],
+      }),
+    );
+  });
+
+  it('updates and deletes tasks while surfacing RLS failures', async () => {
+    query.maybeSingle.mockResolvedValueOnce({ data: sampleTaskRow(), error: null });
+    const updated = await service.updateTask('task-1', {
+      title: 'Preparar informe final',
+      description: '',
+      status: 'IN_PROGRESS',
+      priority: 'MEDIUM',
+      tags: ['Equipo'],
+      estimatedHours: 4,
+      loggedHours: 1,
+    });
+
+    expect(query.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Preparar informe final',
+        description: null,
+        status: 'IN_PROGRESS',
+        estimated_hours: 4,
+      }),
+    );
+    expect(updated.id).toBe('task-1');
+
+    query.maybeSingle.mockResolvedValueOnce({ data: { id: 'task-1' }, error: null });
+    await service.deleteTask('task-1');
+    expect(query.delete).toHaveBeenCalledOnce();
+
+    query.maybeSingle.mockResolvedValueOnce({ data: null, error: null });
+    await expect(service.deleteTask('hidden-task')).rejects.toThrow(
+      'Comprueba que seas su creador',
+    );
+  });
+
   it('subscribes to task changes and allows the page to unsubscribe', async () => {
     const onChange = vi.fn();
     const onError = vi.fn();
@@ -161,4 +219,24 @@ describe('TaskDataService', () => {
     expect(onError).toHaveBeenCalledWith(expect.objectContaining({ message: 'No autorizado' }));
     expect(client.removeChannel).toHaveBeenCalledOnce();
   });
+
+  function sampleTaskRow() {
+    return {
+      id: 'task-1',
+      title: 'Preparar informe',
+      description: null,
+      status: 'TODO',
+      priority: 'HIGH',
+      assigned_user_id: null,
+      assigned_user_name: 'Lucía Martín',
+      assigned_user_email: null,
+      created_by_user_id: 'user-1',
+      subtasks: [{ title: 'Revisar datos', completed: true }, { title: 'Redactar' }],
+      tags: ['Equipo', { label: 'Informe' }],
+      estimated_hours: 3,
+      logged_hours: 1,
+      created_at: '2026-10-27T10:00:00Z',
+      updated_at: '2026-10-27T10:00:00Z',
+    };
+  }
 });

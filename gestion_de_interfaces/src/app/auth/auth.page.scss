@@ -1,3 +1,5 @@
+@use '../../styles/abstracts/variables' as v;
+
 :host {
   display: block;
   min-height: 100%;
@@ -8,26 +10,26 @@
   min-height: 100%;
   padding: 2rem 1rem;
   place-items: center;
-  background: #f6f7fb;
+  background: v.$color-page-bg;
 }
 
 .auth-card {
   width: min(100%, 28rem);
   padding: clamp(1.5rem, 6vw, 2.5rem);
-  border: 1px solid #e4e8f0;
+  border: 1px solid v.$color-border;
   border-radius: 1rem;
-  background: #fff;
+  background: v.$color-surface;
   box-shadow: 0 1.25rem 3.5rem rgb(35 48 71 / 8%);
 
   h1 {
     margin: 0.4rem 0;
-    color: #233047;
+    color: v.$color-text-main;
     font-size: clamp(1.7rem, 6vw, 2rem);
   }
 
   &__eyebrow {
     margin: 2rem 0 0;
-    color: #59677e;
+    color: v.$color-text-muted;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.1em;
@@ -35,7 +37,7 @@
 
   &__description {
     margin: 0 0 1.5rem;
-    color: #59677e;
+    color: v.$color-text-muted;
     line-height: 1.5;
   }
 }
@@ -66,7 +68,7 @@
 
   label {
     margin-top: 0.45rem;
-    color: #233047;
+    color: v.$color-text-main;
     font-size: 0.85rem;
     font-weight: 650;
   }
@@ -75,10 +77,10 @@
     width: 100%;
     min-height: 2.9rem;
     padding: 0.65rem 0.8rem;
-    border: 1px solid #cbd2e0;
+    border: 1px solid v.$color-border;
     border-radius: 0.5rem;
-    background: #fff;
-    color: #233047;
+    background: v.$color-surface;
+    color: v.$color-text-main;
     font: inherit;
 
     &:focus-visible {
@@ -121,7 +123,7 @@
 
 .auth-switch {
   margin: 1.4rem 0 0;
-  color: #59677e;
+  color: v.$color-text-muted;
   font-size: 0.88rem;
   text-align: center;
 
