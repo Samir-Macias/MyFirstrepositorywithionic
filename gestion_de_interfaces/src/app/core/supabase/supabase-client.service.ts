@@ -15,17 +15,27 @@ export class SupabaseClientService {
       return this.client;
     }
 
-    const response = await fetch('/assets/supabase-config.json');
+    const configUrl = new URL('assets/supabase-config.json', document.baseURI);
+    const response = await fetch(configUrl);
     if (!response.ok) {
       throw new Error(
-        'No se pudo cargar la configuración de Supabase. Crea src/assets/supabase-config.json a partir del archivo de ejemplo.',
+        `No se pudo cargar la configuración de Supabase (HTTP ${response.status}). Asegúrate de incluir assets/supabase-config.json en el despliegue.`,
       );
     }
 
-    const config: unknown = await response.json();
+    const responseText = await response.text();
+    let config: unknown;
+    try {
+      config = JSON.parse(responseText);
+    } catch {
+      throw new Error(
+        'La ruta assets/supabase-config.json no devolvió JSON. Comprueba que el archivo esté incluido junto a la app desplegada y que el servidor no esté devolviendo index.html.',
+      );
+    }
+
     if (!this.isRuntimeConfig(config)) {
       throw new Error(
-        'Configura la URL del proyecto y la clave pública anon/publishable en src/assets/supabase-config.json.',
+        'Configura la URL del proyecto y la clave pública anon/publishable en assets/supabase-config.json.',
       );
     }
 

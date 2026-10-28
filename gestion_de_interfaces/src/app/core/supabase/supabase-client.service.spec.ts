@@ -17,10 +17,11 @@ describe('SupabaseClientService', () => {
   it('creates and reuses a client from the local public configuration', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => ({
-        url: 'https://example.supabase.co',
-        anonKey: 'test-public-key',
-      }),
+      text: async () =>
+        JSON.stringify({
+          url: 'https://example.supabase.co',
+          anonKey: 'test-public-key',
+        }),
     });
 
     const firstClient = await service.getClient();
@@ -31,17 +32,29 @@ describe('SupabaseClientService', () => {
   });
 
   it('reports a missing local configuration file explicitly', async () => {
-    fetchMock.mockResolvedValue({ ok: false });
+    fetchMock.mockResolvedValue({ ok: false, status: 404 });
 
     await expect(service.getClient()).rejects.toThrow(
-      'No se pudo cargar la configuración de Supabase.',
+      'No se pudo cargar la configuración de Supabase (HTTP 404).',
+    );
+  });
+
+  it('explains when the config route returns the app HTML instead of JSON', async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      text: async () => '<!DOCTYPE html><html></html>',
+    });
+
+    await expect(service.getClient()).rejects.toThrow(
+      'no devolvió JSON. Comprueba que el archivo esté incluido junto a la app desplegada',
     );
   });
 
   it('rejects configuration without a public key', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => ({ url: 'https://example.supabase.co', anonKey: '' }),
+      text: async () =>
+        JSON.stringify({ url: 'https://example.supabase.co', anonKey: '' }),
     });
 
     await expect(service.getClient()).rejects.toThrow(
