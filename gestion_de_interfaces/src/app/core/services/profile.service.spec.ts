@@ -28,7 +28,7 @@ describe('ProfileService', () => {
     query.maybeSingle.mockResolvedValue({ data: null, error: null });
     client = {
       from: vi.fn().mockReturnValue(query),
-      rpc: vi.fn().mockResolvedValue({ data: false, error: null }),
+      rpc: vi.fn(),
     };
 
     TestBed.configureTestingModule({
@@ -79,35 +79,38 @@ describe('ProfileService', () => {
     await expect(service.getOrganizationId('user-1')).resolves.toBe('org-1');
   });
 
-  it('checks email registration with the configured Supabase RPC contract', async () => {
-    client.rpc.mockResolvedValueOnce({ data: true, error: null });
+  it('adds a member through the RPC and reloads members and invitations', async () => {
+    client.rpc.mockResolvedValue({ data: 'INVITED', error: null });
 
-    await expect(service.emailIsRegistered(' USER@example.test ')).resolves.toBe(true);
-    expect(client.rpc).toHaveBeenCalledWith('check_email_exists', {
-      email_to_check: 'user@example.test',
-    });
-  });
-
-  it('links an existing account and reloads the team', async () => {
-    query.maybeSingle
-      .mockResolvedValueOnce({ data: { id: 'user-2' }, error: null })
-      .mockResolvedValueOnce({ data: { id: 'user-2' }, error: null });
-
-    await service.addTeamMember(' MEMBER@example.test ', ' Miembro Equipo ', 'org-1');
-
-    expect(query.eq).toHaveBeenCalledWith('email', 'member@example.test');
-    expect(query.update).toHaveBeenCalledWith({
-      organization_id: 'org-1',
-      role: 'STANDARD_USER',
-      full_name: 'Miembro Equipo',
-    });
-    expect(query.order).toHaveBeenCalledWith('created_at', { ascending: false });
-  });
-
-  it('does not silently invent an auth profile for an unknown email', async () => {
     await expect(
-      service.addTeamMember('unknown@example.test', 'Usuario Nuevo', 'org-1'),
-    ).rejects.toThrow('No existe una cuenta registrada con ese correo.');
-    expect(query.update).not.toHaveBeenCalled();
+      service.addTeamMember(' MEMBER@example.test ', ' Miembro Equipo ', 'org-1'),
+    ).resolves.toBe('INVITED');
+
+    expect(client.rpc).toHaveBeenCalledWith('add_organization_member', {
+      p_email: 'member@example.test',
+      p_full_name: 'Miembro Equipo',
+    });
+    expect(client.from).toHaveBeenCalledWith('profiles');
+    expect(client.from).toHaveBeenCalledWith('organization_invitations');
+  });
+
+  it('surfaces RPC failures when adding, removing, or cancelling', async () => {
+    client.rpc.mockResolvedValue({ data: null, error: { message: 'Sin permisos' } });
+
+    await expect(service.addTeamMember('a@b.co', 'Ana Perez', 'org-1')).rejects.toThrow('Sin permisos');
+    await expect(service.removeTeamMember('user-2', 'org-1')).rejects.toThrow('Sin permisos');
+    await expect(service.cancelInvitation('inv-1', 'org-1')).rejects.toThrow('Sin permisos');
+  });
+
+  it('removes a member and cancels an invitation by RPC', async () => {
+    client.rpc.mockResolvedValue({ data: null, error: null });
+
+    await service.removeTeamMember('user-2', 'org-1');
+    await service.cancelInvitation('inv-1', 'org-1');
+
+    expect(client.rpc).toHaveBeenCalledWith('remove_organization_member', { p_user_id: 'user-2' });
+    expect(client.rpc).toHaveBeenCalledWith('cancel_organization_invitation', {
+      p_invitation_id: 'inv-1',
+    });
   });
 });

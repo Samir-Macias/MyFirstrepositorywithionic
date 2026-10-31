@@ -6,6 +6,20 @@ export interface Organization {
     readonly createdAt: string;
     readonly corpAdminEmail?: string;
     readonly corpAdminName?: string;
+    readonly members?: readonly OrganizationMember[];
+    readonly memberCount?: number;
+  }
+
+  export interface OrganizationMember {
+    readonly id: string;
+    readonly email: string;
+    readonly fullName: string;
+    readonly role: 'CORP_ADMIN' | 'STANDARD_USER';
+  }
+
+  export interface UpdateOrganizationInput {
+    readonly name: string;
+    readonly slug: string;
   }
   
   export interface CreateOrganizationInput {

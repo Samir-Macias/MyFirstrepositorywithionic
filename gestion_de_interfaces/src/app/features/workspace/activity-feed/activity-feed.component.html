@@ -1,9 +1,17 @@
 <main class="activity-feed">
   <a class="activity-feed__back" routerLink="/workspace">← Volver al espacio de trabajo</a>
   <header class="activity-feed__header">
-    <p class="activity-feed__eyebrow">ADMINISTRACIÓN DEL EQUIPO</p>
+    <p class="activity-feed__eyebrow">
+      {{ isCorpAdmin() ? 'ADMINISTRACIÓN DEL EQUIPO' : 'MI ACTIVIDAD' }}
+    </p>
     <h1>Actividad reciente</h1>
-    <p>Eventos de tareas actualizados en tiempo real.</p>
+    <p>
+      {{
+        isCorpAdmin()
+          ? 'Toda la actividad de tu organización, actualizada en tiempo real.'
+          : 'Actividad de las tareas que creaste o tienes asignadas, en tiempo real.'
+      }}
+    </p>
   </header>
 
   @if (errorMessage()) {

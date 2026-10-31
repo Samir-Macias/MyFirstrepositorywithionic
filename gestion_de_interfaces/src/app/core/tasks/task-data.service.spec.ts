@@ -23,6 +23,7 @@ describe('TaskDataService', () => {
     from: ReturnType<typeof vi.fn>;
     channel: ReturnType<typeof vi.fn>;
     removeChannel: ReturnType<typeof vi.fn>;
+    rpc: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -67,6 +68,7 @@ describe('TaskDataService', () => {
       from: vi.fn().mockReturnValue(query),
       channel: vi.fn().mockReturnValue(channel),
       removeChannel: vi.fn().mockResolvedValue('ok'),
+      rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
     };
 
     TestBed.configureTestingModule({
@@ -130,6 +132,40 @@ describe('TaskDataService', () => {
         timeLabel: 'ahora',
       }),
     ]);
+  });
+
+  it('describes reassignments and honours the activity limit', async () => {
+    query.order.mockReturnValue(query);
+    query.limit.mockResolvedValue({
+      data: [
+        {
+          id: 'log-2',
+          action: 'TASK_UPDATED',
+          user_id: 'admin-1',
+          user_email: 'admin@example.test',
+          task_id: 'task-1',
+          details: { title: 'Informe', old_assignee: null, new_assignee: 'Ana', old_status: 'TODO', new_status: 'TODO' },
+          created_at: new Date().toISOString(),
+        },
+      ],
+      error: null,
+    });
+
+    const activity = await service.loadActivity(100);
+
+    expect(query.limit).toHaveBeenCalledWith(100);
+    expect(activity[0].description).toBe('asignó la tarea «Informe» a Ana');
+  });
+
+  it('assigns and unassigns tasks through the RPC', async () => {
+    await service.assignTask('task-1', 'user-2');
+    await service.assignTask('task-1', null);
+
+    expect(client.rpc).toHaveBeenCalledWith('assign_task', { p_task_id: 'task-1', p_user_id: 'user-2' });
+    expect(client.rpc).toHaveBeenCalledWith('assign_task', { p_task_id: 'task-1', p_user_id: null });
+
+    client.rpc.mockResolvedValueOnce({ data: null, error: { message: 'Sin permisos' } });
+    await expect(service.assignTask('task-1', 'user-9')).rejects.toThrow('Sin permisos');
   });
 
   it('persists task status and reports when RLS updates no row', async () => {

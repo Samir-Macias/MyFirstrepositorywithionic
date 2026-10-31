@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 
 import { AppRole, AuthService } from '../core/auth/auth.service';
 import { Task } from '../core/models/task.model';
+import { ProfileService } from '../core/services/profile.service';
 import { TaskDataService } from '../core/tasks/task-data.service';
 import { HomePage } from './home.page';
 
@@ -19,6 +20,7 @@ describe('HomePage', () => {
     updateTask: ReturnType<typeof vi.fn>;
     deleteTask: ReturnType<typeof vi.fn>;
     subscribeToChanges: ReturnType<typeof vi.fn>;
+    assignTask: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -46,6 +48,7 @@ describe('HomePage', () => {
       })),
       deleteTask: vi.fn().mockResolvedValue(undefined),
       subscribeToChanges: vi.fn().mockResolvedValue(() => undefined),
+      assignTask: vi.fn().mockResolvedValue(undefined),
     };
 
     await TestBed.configureTestingModule({
@@ -55,7 +58,19 @@ describe('HomePage', () => {
           provide: AuthService,
           useValue: { currentUser: signal(user), roles, signOut: vi.fn() },
         },
-        provideRouter([]),
+        {
+          provide: ProfileService,
+          useValue: {
+            members: signal([
+              { id: 'user-2', email: 'ana@example.test', fullName: 'Ana Pérez', role: 'STANDARD_USER', createdAt: '' },
+            ]),
+            invitations: signal([]),
+            getOrganizationId: vi.fn().mockResolvedValue('org-1'),
+            loadTeamMembers: vi.fn().mockResolvedValue([]),
+            loadInvitations: vi.fn().mockResolvedValue([]),
+          },
+        },
+        provideRouter([{ path: 'workspace', component: HomePage }]),
       ],
     }).compileComponents();
 
@@ -87,6 +102,49 @@ describe('HomePage', () => {
       '/workspace/team-management',
     );
     expect(navigation.textContent).toContain('Gestión de Equipo');
+    expect(navigation.textContent).toContain('Actividad');
+  });
+
+  it('removes the full editor and links the activity panel to the full history', () => {
+    expect(fixture.nativeElement.textContent).not.toContain('Editor completo');
+    const link = fixture.nativeElement.querySelector('.activity-panel__link') as HTMLAnchorElement;
+    expect(link.getAttribute('href')).toBe('/workspace/activity-feed');
+    expect(component.navItems().map((item) => item.path)).toContain('/workspace/activity-feed');
+  });
+
+  it('shows the team panel and assignment controls only to corporate admins', async () => {
+    expect(fixture.nativeElement.querySelector('app-team-management')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.data-table__assignee')).toBeNull();
+
+    roles.set(['CORP_ADMIN']);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-team-management')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.data-table__assignee')).not.toBeNull();
+
+    await component.changeTaskAssignment({ taskId: 'task-1', userId: 'user-2' });
+    expect(taskData.assignTask).toHaveBeenCalledWith('task-1', 'user-2');
+    expect(component.tasks().find((task) => task.id === 'task-1')?.assignedUserName).toBe('Ana Pérez');
+  });
+
+  it('scrolls to sections instead of navigating away from the workspace', () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    const link = Array.from(
+      fixture.nativeElement.querySelectorAll('.sidebar__link') as NodeListOf<HTMLAnchorElement>,
+    ).find((item) => item.textContent?.includes('Tareas')) as HTMLAnchorElement;
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+
+    link.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(scrollIntoView).toHaveBeenCalled();
+
+    const dashboard = fixture.nativeElement.querySelector('.sidebar__link') as HTMLAnchorElement;
+    dashboard.click();
+    expect(scrollIntoView).toHaveBeenCalledTimes(2);
   });
 
   it('limits the super admin navigation to the global panel', () => {

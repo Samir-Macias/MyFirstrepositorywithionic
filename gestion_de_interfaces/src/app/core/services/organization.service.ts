@@ -1,6 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { SupabaseClientService } from '../supabase/supabase-client.service';
-import { Organization, CreateOrganizationInput } from '../models/organization.model';
+import {
+  Organization,
+  CreateOrganizationInput,
+  OrganizationMember,
+  UpdateOrganizationInput,
+} from '../models/organization.model';
 
 interface OrganizationRow {
   readonly id: string;
@@ -52,6 +57,7 @@ export class OrganizationService {
         created_by_user_id,
         created_at,
         profiles (
+          id,
           email,
           full_name,
           role
@@ -66,11 +72,14 @@ export class OrganizationService {
 
     const orgs: Organization[] = ((data ?? []) as OrganizationRow[]).map((row) => {
       // Filtrar el perfil que corresponda al administrador de la corporación
-      const corpAdmin = Array.isArray(row.profiles)
-        ? row.profiles.find((profile) => profile.role === 'CORP_ADMIN')
-        : row.profiles?.role === 'CORP_ADMIN'
-          ? row.profiles
-          : null;
+      const profiles = Array.isArray(row.profiles) ? row.profiles : row.profiles ? [row.profiles] : [];
+      const corpAdmin = profiles.find((profile) => profile.role === 'CORP_ADMIN');
+      const members: OrganizationMember[] = profiles.map((profile) => ({
+        id: profile.id ?? '',
+        email: profile.email ?? '',
+        fullName: profile.full_name ?? '',
+        role: profile.role === 'CORP_ADMIN' ? 'CORP_ADMIN' : 'STANDARD_USER',
+      }));
 
       return {
         id: row.id,
@@ -79,7 +88,9 @@ export class OrganizationService {
         createdByUserId: row.created_by_user_id,
         createdAt: row.created_at,
         corpAdminEmail: corpAdmin?.email || 'Sin asignar',
-        corpAdminName: corpAdmin?.full_name || 'Sin asignar'
+        corpAdminName: corpAdmin?.full_name || 'Sin asignar',
+        members,
+        memberCount: members.length,
       };
     });
 
@@ -120,10 +131,47 @@ export class OrganizationService {
       createdAt: row.created_at,
       corpAdminEmail: row.corp_admin_email,
       corpAdminName: row.corp_admin_name,
+      members: [],
+      memberCount: 1,
     };
 
     this._organizations.update(current => [createdOrg, ...current]);
     return createdOrg;
+  }
+
+  async updateOrganization(id: string, input: UpdateOrganizationInput): Promise<void> {
+    const client = await this.supabaseService.getClient();
+    const name = input.name.trim();
+    const slug = input.slug.toLowerCase().trim().replace(/\s+/g, '-');
+
+    const { data, error } = await client
+      .from('organizations')
+      .update({ name, slug })
+      .eq('id', id)
+      .select('id')
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`No se pudo modificar el espacio de trabajo: ${error.message}`);
+    }
+    if (!data) {
+      throw new Error('No se modificó el espacio de trabajo. Comprueba tus permisos.');
+    }
+
+    this._organizations.update((current) =>
+      current.map((org) => (org.id === id ? { ...org, name, slug } : org)),
+    );
+  }
+
+  async deleteOrganization(id: string): Promise<void> {
+    const client = await this.supabaseService.getClient();
+    const { error } = await client.rpc('delete_organization', { p_organization_id: id });
+
+    if (error) {
+      throw new Error(`No se pudo eliminar el espacio de trabajo: ${error.message}`);
+    }
+
+    this._organizations.update((current) => current.filter((org) => org.id !== id));
   }
 
   private isCreatedOrganizationRow(value: unknown): value is CreatedOrganizationRow {

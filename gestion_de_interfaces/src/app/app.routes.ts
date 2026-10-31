@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
-import { pendingChangesGuard } from './core/auth/pending-changes.guard';
 import { roleActivateGuard, roleMatchGuard } from './core/auth/role.guard';
 
 export const routes: Routes = [
@@ -45,23 +44,6 @@ export const routes: Routes = [
           import('./features/workspace/activity-feed/activity-feed.component').then(
             (m) => m.ActivityFeedComponent,
           ),
-        canActivate: [roleActivateGuard(['CORP_ADMIN'])],
-      },
-      {
-        path: 'task-editor',
-        loadComponent: () =>
-          import('./features/workspace/task-editor/task-editor.component').then(
-            (m) => m.TaskEditorComponent,
-          ),
-        canDeactivate: [pendingChangesGuard],
-      },
-      {
-        path: 'task-editor/:id',
-        loadComponent: () =>
-          import('./features/workspace/task-editor/task-editor.component').then(
-            (m) => m.TaskEditorComponent,
-          ),
-        canDeactivate: [pendingChangesGuard],
       },
       {
         path: 'team-management',

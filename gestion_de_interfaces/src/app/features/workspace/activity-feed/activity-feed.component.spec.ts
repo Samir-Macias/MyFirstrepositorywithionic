@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { signal } from '@angular/core';
+import { AuthService } from '../../../core/auth/auth.service';
 import { ActivityEntry } from '../../../core/models/task-row.model';
 import { TaskDataService } from '../../../core/tasks/task-data.service';
 import { ActivityFeedComponent } from './activity-feed.component';
@@ -29,6 +31,7 @@ describe('ActivityFeedComponent', () => {
             subscribeToActivityChanges,
           },
         },
+        { provide: AuthService, useValue: { roles: signal(['USER']) } },
         provideRouter([]),
       ],
     }).compileComponents();
@@ -43,6 +46,11 @@ describe('ActivityFeedComponent', () => {
     expect(subscribeToActivityChanges).toHaveBeenCalledOnce();
     expect(fixture.nativeElement.textContent).toContain('Lucía');
     expect(fixture.nativeElement.textContent).toContain('creó la tarea');
+  });
+
+  it('shows the scoped description for non-admin users and loads the full history', () => {
+    expect(fixture.nativeElement.textContent).toContain('que creaste o tienes asignadas');
+    expect(TestBed.inject(TaskDataService).loadActivity).toHaveBeenCalledWith(100);
   });
 
   it('removes its realtime subscription when destroyed', () => {

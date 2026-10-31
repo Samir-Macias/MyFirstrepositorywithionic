@@ -36,7 +36,7 @@
 
 .feedback-banner {
   padding: 0.85rem 1.25rem;
-  border-radius: v.$radius-md;
+  border-radius: 0.7rem;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
   font-weight: 600;
@@ -57,7 +57,7 @@
 .super-card {
   background-color: v.$color-surface;
   border: 1px solid v.$color-border;
-  border-radius: v.$radius-md;
+  border-radius: 0.7rem;
   padding: 1.5rem;
 
   &__header {
@@ -100,9 +100,9 @@
   &__input {
     padding: 0.65rem 0.85rem;
     border: 1px solid v.$color-border;
-    border-radius: v.$radius-md;
+    border-radius: 0.7rem;
     font-size: 0.9rem;
-    transition: border-color v.$transition-base;
+    transition: border-color 160ms ease;
 
     &:focus {
       outline: none;
@@ -125,14 +125,14 @@
     background-color: v.$color-primary;
     color: v.$color-surface;
     border: none;
-    border-radius: v.$radius-md;
+    border-radius: 0.7rem;
     font-weight: 700;
     font-size: 0.95rem;
     cursor: pointer;
-    transition: background-color v.$transition-base;
+    transition: background-color 160ms ease;
 
     &:hover:not(:disabled) {
-      background-color: lighten(v.$color-primary, 5%);
+      background-color: #5545c4;
     }
 
     &:disabled {
@@ -151,11 +151,11 @@
 .org-item {
   background-color: v.$color-surface-muted;
   border: 1px solid v.$color-border;
-  border-radius: v.$radius-md;
+  border-radius: 0.7rem;
   padding: 1rem;
 
   &__info {
-    @include m.flex-between;
+    display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 0.5rem;
   }
 
@@ -188,5 +188,87 @@
       font-weight: 600;
       color: v.$color-text-main;
     }
+  }
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.25rem;
+  background: v.$color-surface;
+  border: 1px solid v.$color-border;
+  border-radius: 0.7rem;
+  font-size: 0.85rem;
+  color: v.$color-text-muted;
+
+  &__value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: v.$color-primary;
+  }
+}
+
+.org-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.org-btn {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid v.$color-border;
+  border-radius: 0.5rem;
+  background: v.$color-surface;
+  color: v.$color-text-main;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &--primary {
+    background: v.$color-primary;
+    color: v.$color-surface;
+  }
+
+  &--danger {
+    color: v.$color-danger;
+  }
+}
+
+.org-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.org-confirm {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.org-members {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  font-size: 0.85rem;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    padding: 0.4rem 0;
+    border-top: 1px solid v.$color-border;
+  }
+
+  &__meta {
+    font-size: 0.75rem;
+    color: v.$color-text-muted;
   }
 }

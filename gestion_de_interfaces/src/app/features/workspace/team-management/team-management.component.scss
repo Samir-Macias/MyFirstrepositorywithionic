@@ -6,6 +6,14 @@
   margin: 0 auto;
   font-family: v.$font-stack;
 
+  &__back {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: v.$color-primary;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
   &__header {
     margin-bottom: 1.5rem;
   }
@@ -217,4 +225,21 @@
       background: rgba(v.$color-primary, 0.12);
     }
   }
+}
+
+.member-item__remove {
+  flex: 0 0 auto;
+  padding: 0.3rem 0.65rem;
+  color: v.$color-danger;
+  background: transparent;
+  border: 1px solid rgba(v.$color-danger, 0.4);
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.team-card__subtitle {
+  margin: 1.25rem 0 0.75rem;
+  font-size: 0.95rem;
 }

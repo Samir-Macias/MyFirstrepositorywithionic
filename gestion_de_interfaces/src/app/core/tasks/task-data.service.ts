@@ -109,13 +109,25 @@ export class TaskDataService {
     }
   }
 
-  async loadActivity(): Promise<ActivityEntry[]> {
+  async assignTask(taskId: string, userId: string | null): Promise<void> {
+    const client = await this.supabase.getClient();
+    const { error } = await client.rpc('assign_task', {
+      p_task_id: taskId,
+      p_user_id: userId,
+    });
+
+    if (error) {
+      throw new Error(`No se pudo asignar la tarea: ${error.message}`);
+    }
+  }
+
+  async loadActivity(limit = 5): Promise<ActivityEntry[]> {
     const client = await this.supabase.getClient();
     const { data, error } = await client
       .from('activity_logs')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(5);
+      .limit(limit);
 
     if (error) {
       throw new Error(`No se pudo cargar la actividad: ${error.message}`);
@@ -208,6 +220,7 @@ export class TaskDataService {
       description: row.description ?? '',
       status: this.readStatus(row.status),
       priority: this.readPriority(row.priority),
+      assignedUserId: row.assigned_user_id ?? undefined,
       assignedUserName,
       assignedUserInitials: this.initials(assignedUserName),
       dueLabel: formatDueDate(row.due_date),
@@ -232,7 +245,7 @@ export class TaskDataService {
       row.action === 'TASK_CREATED'
         ? `creó la tarea${taskTitle}`
         : row.action === 'TASK_UPDATED'
-          ? 'actualizó una tarea'
+          ? this.describeUpdate(details, taskTitle)
           : row.action === 'TASK_DELETED'
             ? `eliminó la tarea${taskTitle}`
             : `realizó la acción ${row.action}`;
@@ -244,6 +257,20 @@ export class TaskDataService {
       description,
       timeLabel: this.relativeTime(row.created_at),
     };
+  }
+
+  private describeUpdate(details: Record<string, unknown>, taskTitle: string): string {
+    const oldAssignee = typeof details['old_assignee'] === 'string' ? details['old_assignee'] : null;
+    const newAssignee = typeof details['new_assignee'] === 'string' ? details['new_assignee'] : null;
+    if (oldAssignee !== newAssignee) {
+      return newAssignee
+        ? `asignó la tarea${taskTitle} a ${newAssignee}`
+        : `quitó la asignación de la tarea${taskTitle}`;
+    }
+    if (details['old_status'] !== details['new_status']) {
+      return `cambió el estado de la tarea${taskTitle}`;
+    }
+    return `actualizó la tarea${taskTitle}`;
   }
 
   private readArray(value: unknown): unknown[] {

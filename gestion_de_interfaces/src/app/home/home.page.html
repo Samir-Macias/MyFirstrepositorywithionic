@@ -1,7 +1,7 @@
 <ion-content [fullscreen]="true">
   <div class="workspace">
     <aside class="sidebar" aria-label="Navegación principal">
-      <a class="sidebar__brand" href="#overview" aria-label="Taskflow, ir al inicio">
+      <a class="sidebar__brand" href="/workspace" (click)="scrollToSection('overview', $event)" aria-label="Taskflow, ir al inicio">
         <span class="sidebar__brand-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24">
             <path d="m5 12 4 4L19 6" />
@@ -14,7 +14,7 @@
       <p class="sidebar__section-label">ESPACIO DE TRABAJO</p>
       <nav class="sidebar__nav">
         @for (item of navItems(); track item.path) {
-          <a class="sidebar__link" [routerLink]="item.path">
+          <a class="sidebar__link" [routerLink]="item.path" (click)="onNavClick(item.path, $event)">
             @switch (item.icon) {
               @case ('dashboard') {
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -52,7 +52,7 @@
             <span>{{ item.label }}</span>
           </a>
         }
-        <a class="sidebar__link" href="#tasks">
+        <a class="sidebar__link" href="/workspace" (click)="scrollToSection('tasks', $event)">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M8 6h13M8 12h13M8 18h13" />
             <path d="m3 6 1 1 2-2M3 12l1 1 2-2M3 18l1 1 2-2" />
@@ -105,7 +105,7 @@
             />
             <kbd>/</kbd>
           </label>
-          <a class="topbar__icon-button" href="#activity" aria-label="Ir a actividad reciente">
+          <a class="topbar__icon-button" href="/workspace" (click)="scrollToSection('activity', $event)" aria-label="Ir a actividad reciente">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
               <path d="M10 21h4" />
@@ -149,9 +149,6 @@
             <span aria-hidden="true">＋</span>
             Nueva tarea
           </button>
-          <a class="welcome__button welcome__button--editor" routerLink="/workspace/task-editor">
-            Editor completo
-          </a>
         </section>
 
         <section class="stats-grid" aria-label="Resumen de productividad">
@@ -253,6 +250,9 @@
                   [currentUserId]="currentUserId()"
                   (statusChange)="changeTaskStatus($event)"
                   (editRequested)="openEditTask($event)"
+                  [canAssign]="isCorpAdmin()"
+                  [assignableUsers]="assignableUsers()"
+                  (assignmentChange)="changeTaskAssignment($event)"
                   (deleteRequested)="deleteTask($event)"
                 />
               }
@@ -310,6 +310,9 @@
                   <h2 id="activity-title">Actividad reciente</h2>
                   <p>Últimos eventos registrados.</p>
                 </div>
+                <a class="activity-panel__link" routerLink="/workspace/activity-feed">
+                  Ver toda la actividad
+                </a>
               </div>
               <ol class="activity-list">
                 @for (entry of activity(); track entry.id) {
@@ -329,6 +332,12 @@
             </section>
           </div>
         </div>
+
+        @if (isCorpAdmin()) {
+          <section class="panel team-panel" id="team" aria-label="Gestión de equipo">
+            <app-team-management [embedded]="true" />
+          </section>
+        }
 
         <p class="page-footnote">Tareas e historial sincronizados con Supabase</p>
       </div>

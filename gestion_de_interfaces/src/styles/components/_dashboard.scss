@@ -1170,3 +1170,19 @@
     padding: 1.2rem 0;
   }
 }
+
+.activity-panel__link {
+  flex: 0 0 auto;
+  color: v.$color-primary;
+  font-size: 0.75rem;
+  font-weight: 650;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.team-panel {
+  margin-top: 1.25rem;
+}

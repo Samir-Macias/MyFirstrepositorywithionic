@@ -7,9 +7,16 @@ import { Task, TaskPriority, TaskStatus, TaskStatusFilter } from '../core/models
 import { AuthService } from '../core/auth/auth.service';
 import { ActivityEntry } from '../core/models/task-row.model';
 import { TaskDataService, TaskInput } from '../core/tasks/task-data.service';
+import { ProfileService } from '../core/services/profile.service';
 import { ReportExportService } from '../core/services/report-export.service';
 import { DashboardChartsComponent } from '../shared/components/dashboard-charts/dashboard-charts.component';
-import { DataTableComponent, TaskStatusChange } from '../shared/components/data-table/data-table.component';
+import { TeamManagementComponent } from '../features/workspace/team-management/team-management.component';
+import {
+  AssignableUser,
+  DataTableComponent,
+  TaskAssignmentChange,
+  TaskStatusChange,
+} from '../shared/components/data-table/data-table.component';
 import { StatCardComponent } from '../shared/components/stat-card/stat-card.component';
 
 interface TaskFormState {
@@ -33,12 +40,14 @@ interface TaskFormState {
     DashboardChartsComponent,
     DataTableComponent,
     StatCardComponent,
+    TeamManagementComponent,
   ],
 })
 export class HomePage implements OnInit, OnDestroy {
   private readonly taskData = inject(TaskDataService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly profiles = inject(ProfileService);
   private readonly reportExport = inject(ReportExportService);
   readonly searchTerm = signal('');
   readonly activeFilter = signal<TaskStatusFilter>('ALL');
@@ -52,6 +61,13 @@ export class HomePage implements OnInit, OnDestroy {
   readonly taskFormError = signal('');
   readonly editingTaskId = signal<string | null>(null);
   readonly currentUserId = computed(() => this.auth.currentUser()?.id ?? null);
+  readonly isCorpAdmin = computed(() => this.auth.roles().includes('CORP_ADMIN'));
+  readonly assignableUsers = computed<AssignableUser[]>(() =>
+    this.profiles.members().map((member) => ({
+      id: member.id,
+      name: member.fullName || member.email,
+    })),
+  );
   readonly navItems = computed(() => {
     const roles = this.auth.roles();
 
@@ -63,11 +79,9 @@ export class HomePage implements OnInit, OnDestroy {
       { label: 'Cuadro de Mando', path: '/workspace', icon: 'dashboard' },
       { label: 'Calendario', path: '/workspace/calendar', icon: 'calendar' },
       ...(roles.includes('CORP_ADMIN')
-        ? [
-            { label: 'Gestión de Equipo', path: '/workspace/team-management', icon: 'people' },
-            { label: 'Actividad', path: '/workspace/activity-feed', icon: 'activity' },
-          ]
+        ? [{ label: 'Gestión de Equipo', path: '/workspace/team-management', icon: 'people' }]
         : []),
+      { label: 'Actividad', path: '/workspace/activity-feed', icon: 'activity' },
     ];
   });
   readonly editingTaskCanDelete = computed(() => {
@@ -344,6 +358,43 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
+  async changeTaskAssignment(change: TaskAssignmentChange): Promise<void> {
+    this.pageError.set('');
+    try {
+      await this.taskData.assignTask(change.taskId, change.userId);
+      const member = this.profiles.members().find((item) => item.id === change.userId);
+      const name = member ? member.fullName || member.email : 'Sin asignar';
+      this.tasks.update((tasks) =>
+        tasks.map((task) =>
+          task.id === change.taskId
+            ? {
+                ...task,
+                assignedUserId: change.userId ?? undefined,
+                assignedUserName: name,
+                assignedUserEmail: member?.email,
+                assignedUserInitials: this.initialsOf(name),
+              }
+            : task,
+        ),
+      );
+      await this.refreshActivity();
+    } catch (error) {
+      this.pageError.set(
+        error instanceof Error ? error.message : 'No se pudo asignar la tarea.',
+      );
+      await this.refreshTasks();
+    }
+  }
+
+  private initialsOf(name: string): string {
+    return name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toLocaleUpperCase('es'))
+      .join('');
+  }
+
   exportTasksCsv(): void {
     try {
       this.reportExport.exportCsv(this.tasks());
@@ -387,8 +438,15 @@ export class HomePage implements OnInit, OnDestroy {
     this.isTaskFormOpen.set(true);
   }
 
-  async openTaskEditor(task?: Task): Promise<void> {
-    await this.router.navigate(['/workspace/task-editor', ...(task ? [task.id] : [])]);
+  onNavClick(path: string, event: Event): void {
+    if (path === '/workspace') {
+      this.scrollToSection('overview', event);
+    }
+  }
+
+  scrollToSection(id: string, event: Event): void {
+    event.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   closeTaskForm(): void {

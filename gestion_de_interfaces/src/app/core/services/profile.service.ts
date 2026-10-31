@@ -10,6 +10,20 @@ export interface TeamMemberProfile {
   organizationId?: string;
 }
 
+export interface PendingInvitation {
+  id: string;
+  email: string;
+  fullName: string;
+  createdAt: string;
+}
+
+interface InvitationRow {
+  readonly id: string;
+  readonly email: string;
+  readonly full_name: string;
+  readonly created_at: string;
+}
+
 interface ProfileRow {
   readonly id: string;
   readonly email: string;
@@ -27,6 +41,9 @@ export class ProfileService {
 
   private readonly _members = signal<TeamMemberProfile[]>([]);
   public readonly members = this._members.asReadonly();
+
+  private readonly _invitations = signal<PendingInvitation[]>([]);
+  public readonly invitations = this._invitations.asReadonly();
 
   /**
    * Carga los miembros pertenecientes a la organización indicada
@@ -80,61 +97,75 @@ export class ProfileService {
     return organizationId;
   }
 
-  async emailIsRegistered(email: string): Promise<boolean> {
+  async loadInvitations(organizationId: string): Promise<PendingInvitation[]> {
     const client = await this.supabase.getClient();
-    const { data, error } = await client.rpc('check_email_exists', {
-      email_to_check: email.toLowerCase().trim(),
-    });
+    const { data, error } = await client
+      .from('organization_invitations')
+      .select('id, email, full_name, created_at')
+      .eq('organization_id', organizationId)
+      .order('created_at', { ascending: false });
 
     if (error) {
-      throw new Error(`No se pudo comprobar el correo: ${error.message}`);
-    }
-    if (typeof data !== 'boolean') {
-      throw new Error('El RPC check_email_exists debe devolver un booleano.');
+      throw new Error(`No se pudieron cargar las invitaciones: ${error.message}`);
     }
 
-    return data;
+    const invitations = ((data ?? []) as InvitationRow[]).map((row) => ({
+      id: row.id,
+      email: row.email,
+      fullName: row.full_name,
+      createdAt: row.created_at,
+    }));
+    this._invitations.set(invitations);
+    return invitations;
   }
 
   /**
-   * Vincula una cuenta ya registrada a la organización como STANDARD_USER.
+   * Añade al equipo una cuenta existente o deja una invitación si aún no se ha registrado.
    */
-  async addTeamMember(email: string, fullName: string, organizationId: string): Promise<void> {
+  async addTeamMember(
+    email: string,
+    fullName: string,
+    organizationId: string,
+  ): Promise<'LINKED' | 'INVITED'> {
     const client = await this.supabase.getClient();
+    const { data, error } = await client.rpc('add_organization_member', {
+      p_email: email.toLowerCase().trim(),
+      p_full_name: fullName.trim(),
+    });
 
-    const normalizedEmail = email.toLowerCase().trim();
-    const { data: existingProfile, error: lookupError } = await client
-      .from('profiles')
-      .select('id')
-      .eq('email', normalizedEmail)
-      .maybeSingle();
-
-    if (lookupError) {
-      throw new Error(`No se pudo buscar la cuenta del miembro: ${lookupError.message}`);
+    if (error) {
+      throw new Error(error.message);
     }
 
-    if (!existingProfile) {
-      throw new Error('No existe una cuenta registrada con ese correo. El usuario debe registrarse primero.');
+    await this.reloadTeam(organizationId);
+    return data === 'LINKED' ? 'LINKED' : 'INVITED';
+  }
+
+  async removeTeamMember(userId: string, organizationId: string): Promise<void> {
+    const client = await this.supabase.getClient();
+    const { error } = await client.rpc('remove_organization_member', { p_user_id: userId });
+
+    if (error) {
+      throw new Error(error.message);
     }
 
-    const { data: updatedProfile, error: updateError } = await client
-      .from('profiles')
-      .update({
-        organization_id: organizationId,
-        role: 'STANDARD_USER',
-        full_name: fullName.trim(),
-      })
-      .eq('id', existingProfile.id)
-      .select('id')
-      .maybeSingle();
+    await this.reloadTeam(organizationId);
+  }
 
-    if (updateError) {
-      throw new Error(`No se pudo vincular el miembro a la organización: ${updateError.message}`);
-    }
-    if (!updatedProfile) {
-      throw new Error('No se vinculó el miembro. Comprueba los permisos RLS del perfil.');
+  async cancelInvitation(invitationId: string, organizationId: string): Promise<void> {
+    const client = await this.supabase.getClient();
+    const { error } = await client.rpc('cancel_organization_invitation', {
+      p_invitation_id: invitationId,
+    });
+
+    if (error) {
+      throw new Error(error.message);
     }
 
-    await this.loadTeamMembers(organizationId);
+    await this.reloadTeam(organizationId);
+  }
+
+  private async reloadTeam(organizationId: string): Promise<void> {
+    await Promise.all([this.loadTeamMembers(organizationId), this.loadInvitations(organizationId)]);
   }
 }

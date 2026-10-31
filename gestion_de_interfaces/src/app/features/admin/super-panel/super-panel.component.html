@@ -7,15 +7,27 @@
     </header>
   
     <!-- Notificación de Estado -->
+    @if (feedbackMessage()) {
     <div 
-      *ngIf="feedbackMessage()" 
       class="feedback-banner"
       [class.feedback-banner--success]="feedbackMessage()?.type === 'success'"
       [class.feedback-banner--error]="feedbackMessage()?.type === 'error'"
       role="alert">
       {{ feedbackMessage()?.text }}
     </div>
+    }
   
+    <div class="stat-row" aria-label="Resumen global">
+      <div class="stat-box">
+        <span class="stat-box__value">{{ orgs().length }}</span>
+        <span class="stat-box__label">Organizaciones</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-box__value">{{ totalMembers() }}</span>
+        <span class="stat-box__label">Usuarios en organizaciones</span>
+      </div>
+    </div>
+
     <div class="super-panel__grid">
       <!-- Formulario de Alta de Corporación -->
       <article class="super-card" aria-labelledby="form-card-title">
@@ -34,11 +46,12 @@
               [class.admin-form__input--invalid]="orgForm.get('name')?.touched && orgForm.get('name')?.invalid"
               (input)="autoGenerateSlug()"
               placeholder="Ej. Estudio Creativo Alpha" />
-            <span 
-              *ngIf="orgForm.get('name')?.touched && orgForm.get('name')?.errors?.['required']" 
+            @if (orgForm.get('name')?.touched && orgForm.get('name')?.errors?.['required']) {
+              <span 
               class="admin-form__error">
               El nombre es obligatorio.
             </span>
+}
           </div>
   
           <div class="admin-form__field">
@@ -50,11 +63,12 @@
               class="admin-form__input"
               [class.admin-form__input--invalid]="orgForm.get('slug')?.touched && orgForm.get('slug')?.invalid"
               placeholder="ej. estudio-creativo-alpha" />
-            <span 
-              *ngIf="orgForm.get('slug')?.touched && orgForm.get('slug')?.errors?.['pattern']" 
+            @if (orgForm.get('slug')?.touched && orgForm.get('slug')?.errors?.['pattern']) {
+              <span 
               class="admin-form__error">
               Solo letras minúsculas, números y guiones.
             </span>
+}
           </div>
   
           <div class="admin-form__field">
@@ -77,11 +91,12 @@
               class="admin-form__input"
               [class.admin-form__input--invalid]="orgForm.get('corpAdminEmail')?.touched && orgForm.get('corpAdminEmail')?.invalid"
               placeholder="admin@empresa.com" />
-            <span 
-              *ngIf="orgForm.get('corpAdminEmail')?.touched && orgForm.get('corpAdminEmail')?.errors?.['email']" 
+            @if (orgForm.get('corpAdminEmail')?.touched && orgForm.get('corpAdminEmail')?.errors?.['email']) {
+              <span 
               class="admin-form__error">
               Introduce una dirección de correo válida.
             </span>
+}
           </div>
   
           <button 
@@ -99,16 +114,39 @@
           <h2 id="list-card-title" class="super-card__title">Corporaciones Registradas ({{ orgs().length }})</h2>
         </header>
   
-        <div *ngIf="isLoading()" class="super-card__loading">
+        @if (isLoading()) {
+        <div class="super-card__loading">
           Cargando listado...
         </div>
+        }
   
-        <div *ngIf="!isLoading() && orgs().length === 0" class="super-card__empty">
+        @if (!isLoading() && orgs().length === 0) {
+        <div class="super-card__empty">
           No se ha creado ninguna corporación todavía.
         </div>
+        }
   
-        <div *ngIf="!isLoading() && orgs().length > 0" class="org-list">
-          <div *ngFor="let org of orgs()" class="org-item">
+        @if (!isLoading() && orgs().length > 0) {
+        <div class="org-list">
+          @for (org of orgs(); track org.id) {
+          <div class="org-item">
+            @if (editingOrgId() === org.id) {
+            <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="org-edit" novalidate>
+              <label class="admin-form__label" [for]="'edit-name-' + org.id">Nombre</label>
+              <input [id]="'edit-name-' + org.id" type="text" formControlName="name" class="admin-form__input"
+                [class.admin-form__input--invalid]="editForm.get('name')?.touched && editForm.get('name')?.invalid" />
+              <label class="admin-form__label" [for]="'edit-slug-' + org.id">Slug</label>
+              <input [id]="'edit-slug-' + org.id" type="text" formControlName="slug" class="admin-form__input"
+                [class.admin-form__input--invalid]="editForm.get('slug')?.touched && editForm.get('slug')?.invalid" />
+              @if (editForm.get('slug')?.touched && editForm.get('slug')?.invalid) {
+              <span class="admin-form__error">Solo minúsculas, números y guiones.</span>
+              }
+              <div class="org-item__actions">
+                <button type="submit" class="org-btn org-btn--primary" [disabled]="isSavingEdit()">Guardar</button>
+                <button type="button" class="org-btn" (click)="cancelEdit()">Cancelar</button>
+              </div>
+            </form>
+            } @else {
             <div class="org-item__info">
               <h3 class="org-item__name">{{ org.name }}</h3>
               <span class="org-item__slug">slug: {{ org.slug }}</span>
@@ -117,8 +155,43 @@
               <span class="org-item__admin-label">Admin asignado:</span>
               <span class="org-item__admin-val">{{ org.corpAdminName }} ({{ org.corpAdminEmail }})</span>
             </div>
+            <div class="org-item__admin">
+              <span class="org-item__admin-label">Usuarios:</span>
+              <span class="org-item__admin-val">{{ org.memberCount ?? 0 }}</span>
+            </div>
+            <div class="org-item__actions">
+              <button type="button" class="org-btn" [attr.aria-expanded]="expandedOrgId() === org.id"
+                (click)="toggleMembers(org.id)">
+                {{ expandedOrgId() === org.id ? 'Ocultar usuarios' : 'Ver usuarios' }}
+              </button>
+              <button type="button" class="org-btn" (click)="startEdit(org)">Modificar</button>
+              <button type="button" class="org-btn org-btn--danger" (click)="askDelete(org.id)">Eliminar</button>
+            </div>
+            @if (deletingOrgId() === org.id) {
+            <div class="org-confirm" role="alert">
+              <p>¿Eliminar «{{ org.name }}»? Sus usuarios pasarán a usuarios estándar sin organización.</p>
+              <button type="button" class="org-btn org-btn--danger" (click)="confirmDelete(org)">Sí, eliminar</button>
+              <button type="button" class="org-btn" (click)="cancelDelete()">Cancelar</button>
+            </div>
+            }
+            @if (expandedOrgId() === org.id) {
+            <ul class="org-members">
+              @for (member of org.members ?? []; track member.id) {
+              <li class="org-members__item">
+                <span>{{ member.fullName || member.email }}</span>
+                <span class="org-members__meta">{{ member.email }} ·
+                  {{ member.role === 'CORP_ADMIN' ? 'Administrador' : 'Usuario' }}</span>
+              </li>
+              } @empty {
+              <li class="org-members__item">Sin usuarios.</li>
+              }
+            </ul>
+            }
+            }
           </div>
+          }
         </div>
+        }
       </article>
     </div>
   </section>

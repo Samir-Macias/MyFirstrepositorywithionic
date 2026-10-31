@@ -1,11 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
-import { AsyncValidatorFn, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular';
-import { catchError, from, map, of, switchMap, timer } from 'rxjs';
 import { AuthService } from '../core/auth/auth.service';
-import { ProfileService } from '../core/services/profile.service';
 
 @Component({
   selector: 'app-auth',
@@ -17,7 +15,6 @@ import { ProfileService } from '../core/services/profile.service';
 export class AuthPage {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
-  private readonly profiles = inject(ProfileService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -30,11 +27,7 @@ export class AuthPage {
     fullName: [''],
     email: [
       '',
-      {
-        validators: [Validators.required, Validators.email],
-        asyncValidators: [this.registeredEmailValidator()],
-        updateOn: 'change',
-      },
+      [Validators.required, Validators.email],
     ],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
@@ -46,9 +39,6 @@ export class AuthPage {
     if (this.isRegistration()) {
       this.authForm.controls.fullName.addValidators([Validators.required, Validators.minLength(2)]);
       this.authForm.controls.fullName.updateValueAndValidity({ emitEvent: false });
-    } else {
-      this.authForm.controls.email.clearAsyncValidators();
-      this.authForm.controls.email.updateValueAndValidity({ emitEvent: false });
     }
   }
 
@@ -68,7 +58,7 @@ export class AuthPage {
         const hasSession = await this.auth.signUp(email.trim(), password, fullName.trim());
         if (!hasSession) {
           this.noticeMessage.set(
-            'Cuenta creada. Revisa tu correo para confirmar la dirección antes de iniciar sesión.',
+            'Si la cuenta puede registrarse, recibirás un correo para confirmar la dirección antes de iniciar sesión.',
           );
           this.authForm.markAsPristine();
           return;
@@ -89,16 +79,7 @@ export class AuthPage {
         error instanceof Error ? error.message : 'Se produjo un error inesperado.',
       );
     } finally {
-      this.isSubmitting.set(false);
+      this.isSubmitting.set(false      );
     }
-  }
-
-  private registeredEmailValidator(): AsyncValidatorFn {
-    return (control) =>
-      timer(350).pipe(
-        switchMap(() => from(this.profiles.emailIsRegistered(String(control.value ?? '')))),
-        map((exists) => (exists ? { emailExists: true } : null)),
-        catchError(() => of({ emailCheckUnavailable: true })),
-      );
   }
 }

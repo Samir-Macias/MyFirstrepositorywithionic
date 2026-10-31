@@ -7,6 +7,16 @@ export interface TaskStatusChange {
   readonly status: TaskStatus;
 }
 
+export interface TaskAssignmentChange {
+  readonly taskId: string;
+  readonly userId: string | null;
+}
+
+export interface AssignableUser {
+  readonly id: string;
+  readonly name: string;
+}
+
 @Component({
   selector: 'app-data-table',
   standalone: true,
@@ -17,6 +27,9 @@ export interface TaskStatusChange {
 export class DataTableComponent {
   readonly tasks = input.required<readonly Task[]>();
   readonly currentUserId = input<string | null>(null);
+  readonly canAssign = input(false);
+  readonly assignableUsers = input<readonly AssignableUser[]>([]);
+  readonly assignmentChange = output<TaskAssignmentChange>();
   readonly statusChange = output<TaskStatusChange>();
   readonly editRequested = output<Task>();
   readonly deleteRequested = output<Task>();
@@ -84,6 +97,13 @@ export class DataTableComponent {
     const value = target.value;
     if (value === 'TODO' || value === 'IN_PROGRESS' || value === 'COMPLETED') {
       this.statusChange.emit({ taskId: task.id, status: value });
+    }
+  }
+
+  requestAssignment(task: Task, event: Event): void {
+    const target = event.target;
+    if (target instanceof HTMLSelectElement) {
+      this.assignmentChange.emit({ taskId: task.id, userId: target.value || null });
     }
   }
 }

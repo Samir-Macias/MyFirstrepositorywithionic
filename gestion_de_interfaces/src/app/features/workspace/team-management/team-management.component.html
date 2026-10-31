@@ -1,4 +1,6 @@
 <section class="team-management" aria-label="Gestión de miembros del equipo">
+  @if (!embedded()) {
+  <a class="team-management__back" routerLink="/workspace">← Volver al inicio</a>
   <header class="team-management__header">
     <div class="team-management__title-group">
       <h1 class="team-management__title">Gestión de Equipo</h1>
@@ -7,6 +9,7 @@
       </p>
     </div>
   </header>
+  }
 
   @if (feedbackMessage(); as feedback) {
     <div
@@ -23,7 +26,7 @@
     <article class="team-card" aria-labelledby="form-title">
       <header class="team-card__header">
         <h2 id="form-title" class="team-card__title">Añadir miembro</h2>
-        <p>La cuenta debe estar registrada antes de vincularla al equipo.</p>
+        <p>Si la cuenta ya existe se vincula al instante; si no, queda invitada y se une al registrarse con ese correo.</p>
       </header>
 
       <form [formGroup]="memberForm" (ngSubmit)="onSubmit()" class="member-form" novalidate>
@@ -64,7 +67,7 @@
         </div>
 
         <button type="submit" class="member-form__submit-btn" [disabled]="isSubmitting() || isLoading()">
-          {{ isSubmitting() ? 'Guardando...' : 'Vincular al equipo' }}
+          {{ isSubmitting() ? 'Guardando...' : 'Añadir al equipo' }}
         </button>
       </form>
     </article>
@@ -100,6 +103,39 @@
               >
                 {{ member.role === 'CORP_ADMIN' ? 'Admin Equipo' : 'Usuario Estándar' }}
               </span>
+              @if (member.role !== 'CORP_ADMIN') {
+                <button
+                  type="button"
+                  class="member-item__remove"
+                  [attr.aria-label]="'Eliminar a ' + member.fullName + ' del equipo'"
+                  (click)="removeMember(member.id)"
+                >
+                  Eliminar
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (invitations().length > 0) {
+        <h3 class="team-card__subtitle">Invitaciones pendientes ({{ invitations().length }})</h3>
+        <div class="member-list">
+          @for (invitation of invitations(); track invitation.id) {
+            <div class="member-item">
+              <div class="member-item__info">
+                <h3 class="member-item__name">{{ invitation.fullName }}</h3>
+                <span class="member-item__email">{{ invitation.email }}</span>
+              </div>
+              <span class="member-item__role-badge">Pendiente de registro</span>
+              <button
+                type="button"
+                class="member-item__remove"
+                [attr.aria-label]="'Cancelar la invitación de ' + invitation.fullName"
+                (click)="cancelInvitation(invitation.id)"
+              >
+                Cancelar
+              </button>
             </div>
           }
         </div>

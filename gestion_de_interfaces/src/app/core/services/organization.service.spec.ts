@@ -69,6 +69,55 @@ describe('OrganizationService', () => {
     expect(service.organizations()).toEqual(organizations);
   });
 
+  it('counts and lists the members of every organization', async () => {
+    query.order.mockResolvedValue({
+      data: [{
+        ...organizationRow(),
+        profiles: [
+          { id: 'u1', email: 'admin@example.test', full_name: 'Admin Equipo', role: 'CORP_ADMIN' },
+          { id: 'u2', email: 'user@example.test', full_name: 'Usuario', role: 'STANDARD_USER' },
+        ],
+      }],
+      error: null,
+    });
+
+    const [organization] = await service.loadOrganizations();
+
+    expect(organization.memberCount).toBe(2);
+    expect(organization.members?.map((member) => member.id)).toEqual(['u1', 'u2']);
+  });
+
+  it('updates an organization name and slug', async () => {
+    await service.loadOrganizations();
+    query.order.mockResolvedValue({ data: [organizationRow()], error: null });
+    await service.loadOrganizations();
+
+    await service.updateOrganization('org-1', { name: ' Nuevo ', slug: ' Nuevo Slug ' });
+
+    expect(query.update).toHaveBeenCalledWith({ name: 'Nuevo', slug: 'nuevo-slug' });
+    expect(query.eq).toHaveBeenCalledWith('id', 'org-1');
+    expect(service.organizations()[0]).toEqual(expect.objectContaining({ name: 'Nuevo', slug: 'nuevo-slug' }));
+
+    query.maybeSingle.mockResolvedValueOnce({ data: null, error: null });
+    await expect(service.updateOrganization('org-1', { name: 'X', slug: 'x' })).rejects.toThrow(
+      'No se modificó',
+    );
+  });
+
+  it('deletes an organization through the RPC and removes it from the list', async () => {
+    query.order.mockResolvedValue({ data: [organizationRow()], error: null });
+    await service.loadOrganizations();
+    client.rpc.mockResolvedValueOnce({ data: null, error: null });
+
+    await service.deleteOrganization('org-1');
+
+    expect(client.rpc).toHaveBeenCalledWith('delete_organization', { p_organization_id: 'org-1' });
+    expect(service.organizations()).toEqual([]);
+
+    client.rpc.mockResolvedValueOnce({ data: null, error: { message: 'Sin permisos' } });
+    await expect(service.deleteOrganization('org-1')).rejects.toThrow('Sin permisos');
+  });
+
   it('creates an organization and assigns its administrator atomically through the RPC', async () => {
     const organization = await service.createOrganization({
       name: ' Equipo Demo ',

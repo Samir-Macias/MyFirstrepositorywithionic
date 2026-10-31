@@ -58,9 +58,28 @@ describe('DataTableComponent', () => {
     expect(edit).toHaveBeenCalledWith(sampleTasks()[0]);
     expect(remove).toHaveBeenCalledWith(sampleTasks()[0]);
 
-    fixture.componentRef.setInput('currentUserId', 'other-user');
+    fixture.componentRef.setInput('currentUserId', 'nobody');
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('.data-table__delete')).toHaveLength(0);
+  });
+
+  it('lets admins assign and unassign tasks, and shows plain text otherwise', () => {
+    expect(fixture.nativeElement.querySelector('.data-table__assignee')).toBeNull();
+
+    const assignment = vi.fn();
+    fixture.componentInstance.assignmentChange.subscribe(assignment);
+    fixture.componentRef.setInput('canAssign', true);
+    fixture.componentRef.setInput('assignableUsers', [{ id: 'user-9', name: 'Ana' }]);
+    fixture.detectChanges();
+
+    const select = fixture.nativeElement.querySelector('.data-table__assignee') as HTMLSelectElement;
+    select.value = 'user-9';
+    select.dispatchEvent(new Event('change'));
+    select.value = '';
+    select.dispatchEvent(new Event('change'));
+
+    expect(assignment).toHaveBeenNthCalledWith(1, { taskId: 'task-1', userId: 'user-9' });
+    expect(assignment).toHaveBeenNthCalledWith(2, { taskId: 'task-1', userId: null });
   });
 });
 
@@ -84,7 +103,7 @@ function sampleTasks(): Task[] {
       createdByUserId: 'other-user',
       createdAt: '2026-10-29T10:00:00Z',
       title: 'Diseñar portada',
-      description: 'Ajustar la portada del informe.',
+      description: 'Ajustar la portada.',
       status: 'COMPLETED',
       priority: 'LOW',
       tags: ['Diseño'],
