@@ -1,0 +1,109 @@
+<section class="team-management" aria-label="Gestión de miembros del equipo">
+  <header class="team-management__header">
+    <div class="team-management__title-group">
+      <h1 class="team-management__title">Gestión de Equipo</h1>
+      <p class="team-management__subtitle">
+        Administra los miembros vinculados a tu organización.
+      </p>
+    </div>
+  </header>
+
+  @if (feedbackMessage(); as feedback) {
+    <div
+      class="feedback-banner"
+      [class.feedback-banner--success]="feedback.type === 'success'"
+      [class.feedback-banner--error]="feedback.type === 'error'"
+      [attr.role]="feedback.type === 'error' ? 'alert' : 'status'"
+    >
+      {{ feedback.text }}
+    </div>
+  }
+
+  <div class="team-management__grid">
+    <article class="team-card" aria-labelledby="form-title">
+      <header class="team-card__header">
+        <h2 id="form-title" class="team-card__title">Añadir miembro</h2>
+        <p>La cuenta debe estar registrada antes de vincularla al equipo.</p>
+      </header>
+
+      <form [formGroup]="memberForm" (ngSubmit)="onSubmit()" class="member-form" novalidate>
+        <div class="member-form__field">
+          <label for="member-name" class="member-form__label">Nombre completo *</label>
+          <input
+            id="member-name"
+            type="text"
+            formControlName="fullName"
+            class="member-form__input"
+            [class.member-form__input--invalid]="memberForm.get('fullName')?.touched && memberForm.get('fullName')?.invalid"
+            placeholder="Ej. Laura Martínez"
+            autocomplete="name"
+          />
+          @if (memberForm.get('fullName')?.touched && memberForm.get('fullName')?.errors?.['required']) {
+            <span class="member-form__error">El nombre es obligatorio.</span>
+          } @else if (memberForm.get('fullName')?.touched && memberForm.get('fullName')?.errors?.['minlength']) {
+            <span class="member-form__error">El nombre debe tener al menos 2 caracteres.</span>
+          }
+        </div>
+
+        <div class="member-form__field">
+          <label for="member-email" class="member-form__label">Correo electrónico *</label>
+          <input
+            id="member-email"
+            type="email"
+            formControlName="email"
+            class="member-form__input"
+            [class.member-form__input--invalid]="memberForm.get('email')?.touched && memberForm.get('email')?.invalid"
+            placeholder="laura@empresa.com"
+            autocomplete="email"
+          />
+          @if (memberForm.get('email')?.touched && memberForm.get('email')?.errors?.['required']) {
+            <span class="member-form__error">El correo es obligatorio.</span>
+          } @else if (memberForm.get('email')?.touched && memberForm.get('email')?.errors?.['email']) {
+            <span class="member-form__error">Introduce un correo electrónico válido.</span>
+          }
+        </div>
+
+        <button type="submit" class="member-form__submit-btn" [disabled]="isSubmitting() || isLoading()">
+          {{ isSubmitting() ? 'Guardando...' : 'Vincular al equipo' }}
+        </button>
+      </form>
+    </article>
+
+    <article class="team-card" aria-labelledby="list-title">
+      <header class="team-card__header">
+        <h2 id="list-title" class="team-card__title">
+          Miembros del equipo ({{ members().length }})
+        </h2>
+      </header>
+
+      @if (isLoading()) {
+        <div class="team-card__loading" role="status">Cargando miembros...</div>
+      } @else if (members().length === 0) {
+        <div class="team-card__empty">No hay miembros vinculados a esta organización.</div>
+      } @else {
+        <div class="member-list">
+          @for (member of members(); track member.id) {
+            <div class="member-item">
+              <div class="member-item__avatar" aria-hidden="true">
+                {{ member.fullName.charAt(0).toLocaleUpperCase('es') }}
+              </div>
+              <div class="member-item__info">
+                <h3 class="member-item__name">{{ member.fullName }}</h3>
+                <span class="member-item__email">{{ member.email }}</span>
+                <time class="member-item__date" [attr.datetime]="member.createdAt">
+                  Añadido {{ member.createdAt | date:'mediumDate':'':'es-ES' }}
+                </time>
+              </div>
+              <span
+                class="member-item__role-badge"
+                [class.member-item__role-badge--admin]="member.role === 'CORP_ADMIN'"
+              >
+                {{ member.role === 'CORP_ADMIN' ? 'Admin Equipo' : 'Usuario Estándar' }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </article>
+  </div>
+</section>

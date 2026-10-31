@@ -1,0 +1,124 @@
+<section class="super-panel" aria-label="Panel de Superadministración Global">
+    <header class="super-panel__header">
+      <div class="super-panel__title-group">
+        <h1 class="super-panel__title">Panel Global de Gestión</h1>
+        <p class="super-panel__subtitle">Alta y control de corporaciones del sistema multi-inquilino</p>
+      </div>
+    </header>
+  
+    <!-- Notificación de Estado -->
+    <div 
+      *ngIf="feedbackMessage()" 
+      class="feedback-banner"
+      [class.feedback-banner--success]="feedbackMessage()?.type === 'success'"
+      [class.feedback-banner--error]="feedbackMessage()?.type === 'error'"
+      role="alert">
+      {{ feedbackMessage()?.text }}
+    </div>
+  
+    <div class="super-panel__grid">
+      <!-- Formulario de Alta de Corporación -->
+      <article class="super-card" aria-labelledby="form-card-title">
+        <header class="super-card__header">
+          <h2 id="form-card-title" class="super-card__title">Nueva Corporación</h2>
+        </header>
+  
+        <form [formGroup]="orgForm" (ngSubmit)="onSubmit()" class="admin-form" novalidate>
+          <div class="admin-form__field">
+            <label for="org-name" class="admin-form__label">Nombre de la Empresa / Equipo *</label>
+            <input 
+              id="org-name" 
+              type="text" 
+              formControlName="name" 
+              class="admin-form__input"
+              [class.admin-form__input--invalid]="orgForm.get('name')?.touched && orgForm.get('name')?.invalid"
+              (input)="autoGenerateSlug()"
+              placeholder="Ej. Estudio Creativo Alpha" />
+            <span 
+              *ngIf="orgForm.get('name')?.touched && orgForm.get('name')?.errors?.['required']" 
+              class="admin-form__error">
+              El nombre es obligatorio.
+            </span>
+          </div>
+  
+          <div class="admin-form__field">
+            <label for="org-slug" class="admin-form__label">Identificador Único (Slug) *</label>
+            <input 
+              id="org-slug" 
+              type="text" 
+              formControlName="slug" 
+              class="admin-form__input"
+              [class.admin-form__input--invalid]="orgForm.get('slug')?.touched && orgForm.get('slug')?.invalid"
+              placeholder="ej. estudio-creativo-alpha" />
+            <span 
+              *ngIf="orgForm.get('slug')?.touched && orgForm.get('slug')?.errors?.['pattern']" 
+              class="admin-form__error">
+              Solo letras minúsculas, números y guiones.
+            </span>
+          </div>
+  
+          <div class="admin-form__field">
+            <label for="admin-name" class="admin-form__label">Nombre del Administrador Inicial *</label>
+            <input 
+              id="admin-name" 
+              type="text" 
+              formControlName="corpAdminName" 
+              class="admin-form__input"
+              [class.admin-form__input--invalid]="orgForm.get('corpAdminName')?.touched && orgForm.get('corpAdminName')?.invalid"
+              placeholder="Ej. Roberto García" />
+          </div>
+  
+          <div class="admin-form__field">
+            <label for="admin-email" class="admin-form__label">Correo del Administrador (CORP_ADMIN) *</label>
+            <input 
+              id="admin-email" 
+              type="email" 
+              formControlName="corpAdminEmail" 
+              class="admin-form__input"
+              [class.admin-form__input--invalid]="orgForm.get('corpAdminEmail')?.touched && orgForm.get('corpAdminEmail')?.invalid"
+              placeholder="admin@empresa.com" />
+            <span 
+              *ngIf="orgForm.get('corpAdminEmail')?.touched && orgForm.get('corpAdminEmail')?.errors?.['email']" 
+              class="admin-form__error">
+              Introduce una dirección de correo válida.
+            </span>
+          </div>
+  
+          <button 
+            type="submit" 
+            class="admin-form__submit-btn" 
+            [disabled]="isSubmitting()">
+            {{ isSubmitting() ? 'Registrando...' : 'Crear Corporación' }}
+          </button>
+        </form>
+      </article>
+  
+      <!-- Listado de Corporaciones -->
+      <article class="super-card" aria-labelledby="list-card-title">
+        <header class="super-card__header">
+          <h2 id="list-card-title" class="super-card__title">Corporaciones Registradas ({{ orgs().length }})</h2>
+        </header>
+  
+        <div *ngIf="isLoading()" class="super-card__loading">
+          Cargando listado...
+        </div>
+  
+        <div *ngIf="!isLoading() && orgs().length === 0" class="super-card__empty">
+          No se ha creado ninguna corporación todavía.
+        </div>
+  
+        <div *ngIf="!isLoading() && orgs().length > 0" class="org-list">
+          <div *ngFor="let org of orgs()" class="org-item">
+            <div class="org-item__info">
+              <h3 class="org-item__name">{{ org.name }}</h3>
+              <span class="org-item__slug">slug: {{ org.slug }}</span>
+            </div>
+            <div class="org-item__admin">
+              <span class="org-item__admin-label">Admin asignado:</span>
+              <span class="org-item__admin-val">{{ org.corpAdminName }} ({{ org.corpAdminEmail }})</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>

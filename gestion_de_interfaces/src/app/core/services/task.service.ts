@@ -33,18 +33,18 @@ export class TaskService {
       throw new Error('El año o el mes indicado no es válido.');
     }
 
-    const startDate = new Date(Date.UTC(year, month, 1)).toISOString();
-    const endDate = new Date(Date.UTC(year, month + 1, 1)).toISOString();
+    const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const endDate = `${month === 11 ? year + 1 : year}-${String((month + 1) % 12 + 1).padStart(2, '0')}-01`;
     const client = await this.supabase.getClient();
     const { data, error } = await client
       .from('tasks')
       .select('*')
-      .gte('created_at', startDate)
-      .lt('created_at', endDate)
-      .order('created_at', { ascending: true });
+      .gte('due_date', startDate)
+      .lt('due_date', endDate)
+      .order('due_date', { ascending: true });
 
     if (error) {
-      throw new Error(`No se pudieron cargar las tareas creadas en el mes: ${error.message}`);
+      throw new Error(`No se pudieron cargar las tareas programadas en el mes: ${error.message}`);
     }
 
     return ((data ?? []) as SupabaseTaskRow[]).map((row) => TaskMapper.toDomain(row));

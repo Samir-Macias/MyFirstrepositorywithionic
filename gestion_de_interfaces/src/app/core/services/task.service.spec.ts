@@ -98,22 +98,30 @@ describe('TaskService', () => {
     expect(tasks[0]).toEqual(
       expect.objectContaining({
         id: 'task-1',
+        dueDate: '2026-10-10',
         assignedUserInitials: 'SM',
         tags: ['Diseño'],
         subtasks: [{ id: 'subtask-1', title: 'Revisar', completed: true }],
         subtasksCompleted: 1,
-        dueLabel: 'Sin fecha límite',
+        dueLabel: '10 oct',
       }),
     );
     expect(service.tasks()).toEqual(tasks);
   });
 
-  it('filters a month by created_at, which exists in the configured Supabase schema', async () => {
+  it('filters a month by due_date', async () => {
     await service.getTasksByMonth(2026, 9);
 
-    expect(query.gte).toHaveBeenCalledWith('created_at', '2026-10-01T00:00:00.000Z');
-    expect(query.lt).toHaveBeenCalledWith('created_at', '2026-11-01T00:00:00.000Z');
-    expect(query.order).toHaveBeenCalledWith('created_at', { ascending: true });
+    expect(query.gte).toHaveBeenCalledWith('due_date', '2026-10-01');
+    expect(query.lt).toHaveBeenCalledWith('due_date', '2026-11-01');
+    expect(query.order).toHaveBeenCalledWith('due_date', { ascending: true });
+  });
+
+  it('uses the following year when retrieving December tasks', async () => {
+    await service.getTasksByMonth(2026, 11);
+
+    expect(query.gte).toHaveBeenCalledWith('due_date', '2026-12-01');
+    expect(query.lt).toHaveBeenCalledWith('due_date', '2027-01-01');
   });
 
   it('rejects invalid calendar month values without making a query', async () => {
@@ -131,6 +139,7 @@ describe('TaskService', () => {
         title: 'Nueva tarea',
         created_by_user_id: 'user-1',
         tags: ['Diseño'],
+        due_date: '2026-10-10',
       }),
     );
     expect(created.id).toBe('task-1');
@@ -189,6 +198,7 @@ function createTaskInput(): CreateTaskInput {
     description: 'Descripción',
     status: 'TODO',
     priority: 'MEDIUM',
+    dueDate: '2026-10-10',
     tags: ['Diseño'],
     subtasks: [],
     estimatedHours: 2,
@@ -206,6 +216,7 @@ function sampleTaskRow() {
     description: null,
     status: 'IN_PROGRESS' as const,
     priority: 'HIGH' as const,
+    due_date: '2026-10-10',
     assigned_user_id: null,
     assigned_user_name: 'Samir Macias',
     assigned_user_email: null,

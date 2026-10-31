@@ -426,6 +426,13 @@
       text-decoration: underline;
     }
   }
+
+  &__header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.6rem;
+  }
 }
 
 .filter-tabs {
@@ -476,7 +483,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
-  padding-right: 0.35rem;
+  padding-right: 0.85rem;
 
   &::-webkit-scrollbar {
     width: 0.45rem;

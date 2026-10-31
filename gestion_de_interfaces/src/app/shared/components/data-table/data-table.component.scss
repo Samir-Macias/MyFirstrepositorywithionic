@@ -1,0 +1,129 @@
+@use "../../../../styles/abstracts/variables" as v;
+
+.data-table {
+  min-width: 0;
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  &__search {
+    flex: 1 1 16rem;
+
+    input {
+      width: 100%;
+    }
+  }
+
+  &__filter {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: v.$color-text-muted;
+    font-size: 0.8rem;
+
+    select {
+      max-width: 10rem;
+    }
+  }
+
+  input,
+  select {
+    min-height: 2.4rem;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-md;
+    background: v.$color-surface;
+    color: v.$color-text-main;
+    padding: 0.45rem 0.6rem;
+    font: inherit;
+  }
+
+  &__scroll {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    min-width: 48rem;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: 0.75rem 0.6rem;
+    border-bottom: 1px solid v.$color-border;
+    font-size: 0.82rem;
+    vertical-align: middle;
+  }
+
+  thead th {
+    color: v.$color-text-muted;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__task {
+    max-width: 15rem;
+    font-weight: 600;
+
+    span,
+    small {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    small {
+      margin-top: 0.2rem;
+      color: v.$color-text-muted;
+      font-weight: 400;
+    }
+  }
+
+  &__status {
+    min-height: 2rem;
+    padding: 0.25rem;
+    font-size: 0.78rem;
+  }
+
+  &__actions {
+    white-space: nowrap;
+
+    button {
+      border: 0;
+      background: transparent;
+      color: v.$color-primary;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      padding: 0.25rem;
+    }
+  }
+
+  &__actions .data-table__delete {
+    color: v.$color-danger;
+  }
+
+  &__empty {
+    padding: 2rem;
+    color: v.$color-text-muted;
+    text-align: center;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}

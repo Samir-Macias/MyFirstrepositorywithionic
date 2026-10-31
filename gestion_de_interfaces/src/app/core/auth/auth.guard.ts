@@ -10,9 +10,9 @@ export const authGuard: CanActivateFn = async (_route, state) => {
     const session = await auth.getSession();
     return session
       ? true
-      : router.createUrlTree(['/auth'], { queryParams: { returnUrl: state.url } });
+      : router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
   } catch (error) {
     console.error('No se pudo comprobar la sesión de Supabase.', error);
-    return router.createUrlTree(['/auth'], { queryParams: { error: 'session' } });
+    return router.createUrlTree(['/login'], { queryParams: { error: 'session' } });
   }
 };

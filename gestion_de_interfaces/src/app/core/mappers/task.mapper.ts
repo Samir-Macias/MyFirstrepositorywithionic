@@ -1,10 +1,12 @@
 import { Subtask, Task, TaskPriority, TaskStatus } from '../models/task.model';
+import { formatDueDate, normalizeDueDate } from '../utils/date-format';
 
 export interface SupabaseTaskRow {
   readonly id: string;
   readonly created_by_user_id: string;
   readonly created_at: string;
   readonly updated_at: string;
+  readonly due_date?: string | null;
   readonly title: string;
   readonly description: string | null;
   readonly status: TaskStatus;
@@ -32,6 +34,7 @@ export class TaskMapper {
       createdByUserId: row.created_by_user_id,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
+      dueDate: normalizeDueDate(row.due_date),
       title: row.title,
       description: row.description ?? '',
       status: this.readStatus(row.status),
@@ -40,7 +43,7 @@ export class TaskMapper {
       assignedUserName,
       assignedUserEmail: row.assigned_user_email ?? undefined,
       assignedUserInitials: this.initials(assignedUserName),
-      dueLabel: 'Sin fecha límite',
+      dueLabel: formatDueDate(row.due_date),
       tags: this.readTags(row.tags),
       subtasks,
       subtasksCompleted: subtasks.filter((subtask) => subtask.completed).length,
@@ -54,6 +57,7 @@ export class TaskMapper {
     const row: SupabaseTaskWrite = {};
 
     if (task.createdByUserId !== undefined) row.created_by_user_id = task.createdByUserId;
+    if (task.dueDate !== undefined) row.due_date = task.dueDate;
     if (task.title !== undefined) row.title = task.title;
     if (task.description !== undefined) row.description = task.description;
     if (task.status !== undefined) row.status = task.status;
@@ -144,4 +148,5 @@ export class TaskMapper {
       .map((part) => part[0].toLocaleUpperCase('es'))
       .join('');
   }
+
 }

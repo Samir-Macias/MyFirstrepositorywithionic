@@ -1,0 +1,100 @@
+<section class="calendar-layout" aria-label="Vista de calendario y tareas">
+  <div class="calendar-layout__main">
+    <header class="calendar-header">
+      <a class="calendar-header__back" routerLink="/workspace">← Volver al resumen</a>
+      <div class="calendar-header__info">
+        <h1 class="calendar-header__title">
+          {{ currentDate() | date:'MMMM yyyy':'':'es-ES' }}
+        </h1>
+        <span class="calendar-header__subtitle">
+          {{ monthlyTasks().length }} tareas programadas este mes
+        </span>
+      </div>
+      <nav class="calendar-header__nav" aria-label="Navegación entre meses">
+        <button type="button" class="calendar-header__btn" (click)="previousMonth()" aria-label="Mes anterior">
+          &larr; Anterior
+        </button>
+        <button type="button" class="calendar-header__btn" (click)="nextMonth()" aria-label="Mes siguiente">
+          Siguiente &rarr;
+        </button>
+      </nav>
+    </header>
+
+    @if (isLoading()) {
+      <div class="calendar-layout__loading" role="status">Cargando agenda de tareas...</div>
+    } @else if (loadError()) {
+      <p class="calendar-layout__error" role="alert">{{ loadError() }}</p>
+    } @else {
+      <div class="calendar-grid" role="grid" aria-label="Calendario mensual">
+        @for (dayName of weekDays; track dayName) {
+          <div class="calendar-grid__weekday" role="columnheader">{{ dayName }}</div>
+        }
+        @for (dayCell of calendarGrid(); track dayCell.date.getTime()) {
+          <button
+            type="button"
+            class="calendar-day"
+            [class.calendar-day--out-month]="!dayCell.isCurrentMonth"
+            [class.calendar-day--today]="dayCell.isToday"
+            [class.calendar-day--selected]="isSameDay(dayCell.date, selectedDate())"
+            (click)="selectDate(dayCell.date)"
+            role="gridcell"
+            [attr.aria-label]="(dayCell.date | date:'fullDate':'':'es-ES') + ', ' + dayCell.tasks.length + ' tareas'"
+            [attr.aria-pressed]="isSameDay(dayCell.date, selectedDate())"
+          >
+            <span class="calendar-day__number">{{ dayCell.dayNumber }}</span>
+            <span class="calendar-day__tasks">
+              @for (task of dayCell.tasks | slice:0:3; track task.id) {
+                <span
+                  class="task-chip"
+                  [class.task-chip--high]="task.priority === 'HIGH'"
+                  [class.task-chip--completed]="task.status === 'COMPLETED'"
+                >{{ task.title }}</span>
+              }
+              @if (dayCell.tasks.length > 3) {
+                <span class="calendar-day__more">+{{ dayCell.tasks.length - 3 }} más</span>
+              }
+            </span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <aside class="day-detail-panel" aria-label="Detalle diario">
+    <header class="day-detail-panel__header">
+      <span class="day-detail-panel__date">
+        {{ selectedDate() | date:'fullDate':'':'es-ES' }}
+      </span>
+      <h2 class="day-detail-panel__title">Tareas asignadas ({{ selectedDayTasks().length }})</h2>
+    </header>
+    <div class="day-detail-panel__content">
+      @if (selectedDayTasks().length === 0) {
+        <div class="day-detail-panel__empty"><p>No hay tareas programadas para este día.</p></div>
+      }
+      @for (task of selectedDayTasks(); track task.id) {
+        <article
+          class="task-detail-card"
+          [class.task-detail-card--completed]="task.status === 'COMPLETED'"
+          [class.task-detail-card--urgent]="task.priority === 'HIGH'"
+        >
+          <header class="task-detail-card__header">
+            <h3 class="task-detail-card__title">{{ task.title }}</h3>
+            <span
+              class="task-detail-card__badge"
+              [class.task-detail-card__badge--high]="task.priority === 'HIGH'"
+              [class.task-detail-card__badge--medium]="task.priority === 'MEDIUM'"
+              [class.task-detail-card__badge--low]="task.priority === 'LOW'"
+            >{{ task.priority }}</span>
+          </header>
+          @if (task.description) {
+            <p class="task-detail-card__desc">{{ task.description }}</p>
+          }
+          <footer class="task-detail-card__footer">
+            <span class="task-detail-card__user">👤 {{ task.assignedUserName || 'Sin asignar' }}</span>
+            <span class="task-detail-card__status">{{ task.status }}</span>
+          </footer>
+        </article>
+      }
+    </div>
+  </aside>
+</section>

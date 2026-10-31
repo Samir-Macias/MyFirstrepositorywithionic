@@ -50,6 +50,13 @@
       >
         Editar
       </button>
+      <button
+        type="button"
+        [attr.aria-label]="'Abrir editor de tarea: ' + task().title"
+        (click)="editInEditorRequested.emit(task())"
+      >
+        Editor
+      </button>
       @if (canDelete()) {
         <button
           type="button"

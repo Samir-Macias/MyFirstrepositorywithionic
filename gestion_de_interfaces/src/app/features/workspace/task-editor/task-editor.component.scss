@@ -1,0 +1,117 @@
+@use "../../../../styles/abstracts/variables" as v;
+
+.task-editor {
+  max-width: 760px;
+  margin: 0 auto;
+  color: v.$color-text-main;
+  font-family: v.$font-stack;
+
+  &__back {
+    color: v.$color-primary;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  &__header {
+    margin: 1.5rem 0;
+
+    p {
+      margin: 0 0 0.3rem;
+      color: v.$color-primary;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.7rem;
+    }
+  }
+
+  &__form {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: v.$color-surface;
+    border: 1px solid v.$color-border;
+    border-radius: 0.8rem;
+
+    label {
+      color: v.$color-text-main;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      min-width: 0;
+      padding: 0.7rem 0.8rem;
+      color: v.$color-text-main;
+      background: v.$color-surface;
+      border: 1px solid v.$color-border;
+      border-radius: 0.55rem;
+      font: inherit;
+    }
+
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid v.$color-focus;
+      outline-offset: 1px;
+    }
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+
+    div {
+      display: grid;
+      gap: 0.75rem;
+    }
+  }
+
+  &__field-error,
+  &__error {
+    color: v.$color-danger;
+    font-size: 0.8rem;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+
+    a {
+      color: v.$color-text-muted;
+    }
+
+    button {
+      padding: 0.7rem 1rem;
+      color: #fff;
+      background: v.$color-primary;
+      border: 0;
+      border-radius: 0.55rem;
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .task-editor__row {
+    grid-template-columns: 1fr;
+  }
+}

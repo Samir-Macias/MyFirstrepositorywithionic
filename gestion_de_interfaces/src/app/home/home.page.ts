@@ -1,13 +1,16 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { IonContent } from '@ionic/angular';
 import { Task, TaskPriority, TaskStatus, TaskStatusFilter } from '../core/models/task.model';
 import { AuthService } from '../core/auth/auth.service';
 import { ActivityEntry } from '../core/models/task-row.model';
 import { TaskDataService, TaskInput } from '../core/tasks/task-data.service';
+import { ReportExportService } from '../core/services/report-export.service';
+import { DashboardChartsComponent } from '../shared/components/dashboard-charts/dashboard-charts.component';
+import { DataTableComponent, TaskStatusChange } from '../shared/components/data-table/data-table.component';
 import { StatCardComponent } from '../shared/components/stat-card/stat-card.component';
-import { TaskCardComponent } from '../shared/components/task-card/task-card.component';
 
 interface TaskFormState {
   title: string;
@@ -17,17 +20,26 @@ interface TaskFormState {
   tags: string;
   estimatedHours: number;
   loggedHours: number;
+  dueDate: string;
 }
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
-  imports: [FormsModule, IonContent, StatCardComponent, TaskCardComponent],
+  imports: [
+    FormsModule,
+    IonContent,
+    RouterLink,
+    DashboardChartsComponent,
+    DataTableComponent,
+    StatCardComponent,
+  ],
 })
 export class HomePage implements OnInit, OnDestroy {
   private readonly taskData = inject(TaskDataService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly reportExport = inject(ReportExportService);
   readonly searchTerm = signal('');
   readonly activeFilter = signal<TaskStatusFilter>('ALL');
   readonly tasks = signal<Task[]>([]);
@@ -40,6 +52,24 @@ export class HomePage implements OnInit, OnDestroy {
   readonly taskFormError = signal('');
   readonly editingTaskId = signal<string | null>(null);
   readonly currentUserId = computed(() => this.auth.currentUser()?.id ?? null);
+  readonly navItems = computed(() => {
+    const roles = this.auth.roles();
+
+    if (roles.includes('SUPER_ADMIN')) {
+      return [{ label: 'Panel Global', path: '/admin/super-panel', icon: 'shield' }];
+    }
+
+    return [
+      { label: 'Cuadro de Mando', path: '/workspace', icon: 'dashboard' },
+      { label: 'Calendario', path: '/workspace/calendar', icon: 'calendar' },
+      ...(roles.includes('CORP_ADMIN')
+        ? [
+            { label: 'Gestión de Equipo', path: '/workspace/team-management', icon: 'people' },
+            { label: 'Actividad', path: '/workspace/activity-feed', icon: 'activity' },
+          ]
+        : []),
+    ];
+  });
   readonly editingTaskCanDelete = computed(() => {
     const task = this.tasks().find((item) => item.id === this.editingTaskId());
     return task?.createdByUserId === this.currentUserId();
@@ -297,6 +327,43 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
+  async changeTaskStatus(change: TaskStatusChange): Promise<void> {
+    this.pageError.set('');
+    try {
+      await this.taskData.setStatus(change.taskId, change.status);
+      this.tasks.update((tasks) =>
+        tasks.map((task) =>
+          task.id === change.taskId ? { ...task, status: change.status } : task,
+        ),
+      );
+      await this.refreshActivity();
+    } catch (error) {
+      this.pageError.set(
+        error instanceof Error ? error.message : 'No se pudo actualizar el estado de la tarea.',
+      );
+    }
+  }
+
+  exportTasksCsv(): void {
+    try {
+      this.reportExport.exportCsv(this.tasks());
+    } catch (error) {
+      this.pageError.set(
+        error instanceof Error ? error.message : 'No se pudo generar el informe CSV.',
+      );
+    }
+  }
+
+  exportTasksPdf(): void {
+    try {
+      this.reportExport.exportPdf(this.tasks());
+    } catch (error) {
+      this.pageError.set(
+        error instanceof Error ? error.message : 'No se pudo generar el informe PDF.',
+      );
+    }
+  }
+
   openCreateTask(): void {
     this.taskForm = this.emptyTaskForm();
     this.editingTaskId.set(null);
@@ -313,10 +380,15 @@ export class HomePage implements OnInit, OnDestroy {
       tags: task.tags.join(', '),
       estimatedHours: task.estimatedHours,
       loggedHours: task.loggedHours,
+      dueDate: task.dueDate ?? '',
     };
     this.editingTaskId.set(task.id);
     this.taskFormError.set('');
     this.isTaskFormOpen.set(true);
+  }
+
+  async openTaskEditor(task?: Task): Promise<void> {
+    await this.router.navigate(['/workspace/task-editor', ...(task ? [task.id] : [])]);
   }
 
   closeTaskForm(): void {
@@ -340,6 +412,7 @@ export class HomePage implements OnInit, OnDestroy {
       tags: this.taskForm.tags.split(','),
       estimatedHours: Number(this.taskForm.estimatedHours),
       loggedHours: Number(this.taskForm.loggedHours),
+      dueDate: this.taskForm.dueDate || null,
     };
 
     try {
@@ -419,6 +492,7 @@ export class HomePage implements OnInit, OnDestroy {
       tags: '',
       estimatedHours: 0,
       loggedHours: 0,
+      dueDate: '',
     };
   }
 }

@@ -1,0 +1,30 @@
+<main class="activity-feed">
+  <a class="activity-feed__back" routerLink="/workspace">← Volver al espacio de trabajo</a>
+  <header class="activity-feed__header">
+    <p class="activity-feed__eyebrow">ADMINISTRACIÓN DEL EQUIPO</p>
+    <h1>Actividad reciente</h1>
+    <p>Eventos de tareas actualizados en tiempo real.</p>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="activity-feed__error" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="activity-feed__empty" role="status">Cargando actividad...</p>
+  } @else if (activities().length === 0) {
+    <p class="activity-feed__empty">Aún no hay eventos para mostrar.</p>
+  } @else {
+    <ol class="activity-feed__list">
+      @for (activity of activities(); track activity.id) {
+        <li class="activity-feed__item">
+          <span class="activity-feed__avatar" aria-hidden="true">{{ activity.initials }}</span>
+          <div class="activity-feed__copy">
+            <p><strong>{{ activity.userName }}</strong> {{ activity.description }}</p>
+            <span>{{ activity.timeLabel }}</span>
+          </div>
+        </li>
+      }
+    </ol>
+  }
+</main>

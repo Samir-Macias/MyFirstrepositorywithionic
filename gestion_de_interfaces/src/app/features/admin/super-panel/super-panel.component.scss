@@ -1,0 +1,192 @@
+@use "../../../../styles/abstracts/variables" as v;
+@use "../../../../styles/abstracts/mixins" as m;
+
+.super-panel {
+  font-family: v.$font-stack;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  &__header {
+    margin-bottom: 1.5rem;
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: v.$color-text-main;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: 0.95rem;
+    color: v.$color-text-muted;
+    margin-top: 0.25rem;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+
+    @include m.respond-to("desktop") {
+      grid-template-columns: 1fr 1.2fr;
+    }
+  }
+}
+
+.feedback-banner {
+  padding: 0.85rem 1.25rem;
+  border-radius: v.$radius-md;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  &--success {
+    background-color: rgba(#10b981, 0.12);
+    color: #047857;
+    border: 1px solid rgba(#10b981, 0.3);
+  }
+
+  &--error {
+    background-color: rgba(v.$color-danger, 0.12);
+    color: v.$color-danger;
+    border: 1px solid rgba(v.$color-danger, 0.3);
+  }
+}
+
+.super-card {
+  background-color: v.$color-surface;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  padding: 1.5rem;
+
+  &__header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid v.$color-border;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.15rem;
+    color: v.$color-text-main;
+  }
+
+  &__loading, &__empty {
+    text-align: center;
+    padding: 2rem 0;
+    color: v.$color-text-muted;
+    font-size: 0.9rem;
+  }
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: v.$color-text-main;
+  }
+
+  &__input {
+    padding: 0.65rem 0.85rem;
+    border: 1px solid v.$color-border;
+    border-radius: v.$radius-md;
+    font-size: 0.9rem;
+    transition: border-color v.$transition-base;
+
+    &:focus {
+      outline: none;
+      border-color: v.$color-primary;
+    }
+
+    &--invalid {
+      border-color: v.$color-danger;
+    }
+  }
+
+  &__error {
+    font-size: 0.75rem;
+    color: v.$color-danger;
+  }
+
+  &__submit-btn {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background-color: v.$color-primary;
+    color: v.$color-surface;
+    border: none;
+    border-radius: v.$radius-md;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color v.$transition-base;
+
+    &:hover:not(:disabled) {
+      background-color: lighten(v.$color-primary, 5%);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.org-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.org-item {
+  background-color: v.$color-surface-muted;
+  border: 1px solid v.$color-border;
+  border-radius: v.$radius-md;
+  padding: 1rem;
+
+  &__info {
+    @include m.flex-between;
+    margin-bottom: 0.5rem;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: v.$color-text-main;
+  }
+
+  &__slug {
+    font-size: 0.75rem;
+    color: v.$color-text-muted;
+    background-color: v.$color-surface;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid v.$color-border;
+  }
+
+  &__admin {
+    font-size: 0.825rem;
+    display: flex;
+    gap: 0.35rem;
+
+    &-label {
+      color: v.$color-text-muted;
+    }
+
+    &-val {
+      font-weight: 600;
+      color: v.$color-text-main;
+    }
+  }
+}

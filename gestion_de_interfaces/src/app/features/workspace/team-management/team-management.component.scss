@@ -1,0 +1,220 @@
+@use "../../../../styles/abstracts/variables" as v;
+@use "../../../../styles/abstracts/mixins" as m;
+
+.team-management {
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: v.$font-stack;
+
+  &__header {
+    margin-bottom: 1.5rem;
+  }
+
+  &__title {
+    margin: 0;
+    color: v.$color-text-main;
+    font-size: 1.75rem;
+    font-weight: 800;
+  }
+
+  &__subtitle {
+    margin-top: 0.25rem;
+    color: v.$color-text-muted;
+    font-size: 0.95rem;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+
+    @include m.respond-to("desktop") {
+      grid-template-columns: 1fr 1.3fr;
+    }
+  }
+}
+
+.feedback-banner {
+  margin-bottom: 1.5rem;
+  padding: 0.85rem 1.25rem;
+  border: 1px solid v.$color-border;
+  border-radius: 0.7rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  &--success {
+    color: #047857;
+    background: rgb(16 185 129 / 12%);
+    border-color: rgb(16 185 129 / 30%);
+  }
+
+  &--error {
+    color: v.$color-danger;
+    background: rgba(v.$color-danger, 0.12);
+    border-color: rgba(v.$color-danger, 0.3);
+  }
+}
+
+.team-card {
+  padding: 1.5rem;
+  background: v.$color-surface;
+  border: 1px solid v.$color-border;
+  border-radius: 0.7rem;
+
+  &__header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid v.$color-border;
+  }
+
+  &__title {
+    margin: 0;
+    color: v.$color-text-main;
+    font-size: 1.15rem;
+  }
+
+  &__header p,
+  &__loading,
+  &__empty {
+    color: v.$color-text-muted;
+    font-size: 0.9rem;
+  }
+
+  &__header p {
+    margin: 0.4rem 0 0;
+  }
+
+  &__loading,
+  &__empty {
+    padding: 2rem 0;
+    text-align: center;
+  }
+}
+
+.member-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  &__label {
+    color: v.$color-text-main;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  &__input {
+    padding: 0.65rem 0.85rem;
+    color: v.$color-text-main;
+    background: v.$color-surface;
+    border: 1px solid v.$color-border;
+    border-radius: 0.6rem;
+    font-size: 0.9rem;
+
+    &:focus {
+      outline: 2px solid v.$color-focus;
+      outline-offset: 1px;
+    }
+
+    &--invalid {
+      border-color: v.$color-danger;
+    }
+  }
+
+  &__error {
+    color: v.$color-danger;
+    font-size: 0.75rem;
+  }
+
+  &__submit-btn {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    color: #fff;
+    background: v.$color-primary;
+    border: 0;
+    border-radius: 0.6rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: v.$color-surface-muted;
+  border: 1px solid v.$color-border;
+  border-radius: 0.7rem;
+
+  &__avatar {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    place-items: center;
+    color: #fff;
+    background: v.$color-primary;
+    border-radius: 50%;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  &__info {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  &__name {
+    overflow: hidden;
+    margin: 0;
+    color: v.$color-text-main;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__email,
+  &__date {
+    overflow: hidden;
+    color: v.$color-text-muted;
+    font-size: 0.8rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__role-badge {
+    flex: 0 0 auto;
+    padding: 0.25rem 0.55rem;
+    color: v.$color-text-muted;
+    background: rgba(v.$color-text-muted, 0.12);
+    border-radius: 9999px;
+    font-size: 0.725rem;
+    font-weight: 700;
+
+    &--admin {
+      color: v.$color-primary;
+      background: rgba(v.$color-primary, 0.12);
+    }
+  }
+}

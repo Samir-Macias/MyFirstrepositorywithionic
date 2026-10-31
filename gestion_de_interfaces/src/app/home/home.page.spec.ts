@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
-import { AuthService } from '../core/auth/auth.service';
+import { AppRole, AuthService } from '../core/auth/auth.service';
 import { Task } from '../core/models/task.model';
 import { TaskDataService } from '../core/tasks/task-data.service';
 import { HomePage } from './home.page';
@@ -10,6 +10,7 @@ import { HomePage } from './home.page';
 describe('HomePage', () => {
   let component: HomePage;
   let fixture: ComponentFixture<HomePage>;
+  let roles: WritableSignal<AppRole[]>;
   let taskData: {
     loadTasks: ReturnType<typeof vi.fn>;
     loadActivity: ReturnType<typeof vi.fn>;
@@ -28,6 +29,7 @@ describe('HomePage', () => {
       email: 'lucia@example.test',
       user_metadata: { full_name: 'Lucía Martín' },
     };
+    roles = signal<AppRole[]>(['USER']);
     taskData = {
       loadTasks: vi.fn().mockResolvedValue(sampleTasks()),
       loadActivity: vi.fn().mockResolvedValue([]),
@@ -49,7 +51,10 @@ describe('HomePage', () => {
     await TestBed.configureTestingModule({
       providers: [
         { provide: TaskDataService, useValue: taskData },
-        { provide: AuthService, useValue: { currentUser: signal(user), signOut: vi.fn() } },
+        {
+          provide: AuthService,
+          useValue: { currentUser: signal(user), roles, signOut: vi.fn() },
+        },
         provideRouter([]),
       ],
     }).compileComponents();
@@ -68,6 +73,28 @@ describe('HomePage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('shows the calendar for workspace users and adds team management for corporate admins', () => {
+    expect(component.navItems().map((item) => item.path)).toContain('/workspace/calendar');
+    const navigation = fixture.nativeElement.querySelector('.sidebar__nav') as HTMLElement;
+    expect(navigation.textContent).toContain('Calendario');
+
+    roles.set(['CORP_ADMIN']);
+    fixture.detectChanges();
+
+    expect(component.navItems().map((item) => item.path)).toContain(
+      '/workspace/team-management',
+    );
+    expect(navigation.textContent).toContain('Gestión de Equipo');
+  });
+
+  it('limits the super admin navigation to the global panel', () => {
+    roles.set(['SUPER_ADMIN']);
+
+    expect(component.navItems()).toEqual([
+      { label: 'Panel Global', path: '/admin/super-panel', icon: 'shield' },
+    ]);
   });
 
   it('filters tasks by status', () => {
@@ -206,23 +233,22 @@ describe('HomePage', () => {
     expect(localStorage.getItem('taskflow-theme')).toBe('light');
   });
 
-  it('renders the line and doughnut charts without bar-chart markup', () => {
+  it('renders the weekly chart and both Chart.js dashboard charts', () => {
     const page = fixture.nativeElement as HTMLElement;
 
     expect(page.querySelector('.progress-panel__line')).not.toBeNull();
-    const segments = page.querySelector('.completion-chart__segments');
-    expect(segments?.getAttribute('transform')).toBe('rotate(-90 60 60)');
-    expect(page.querySelector('.completion-chart__segment')?.getAttribute('fill')).toBe('none');
-    expect(page.querySelector('.progress-panel__bars')).toBeNull();
+    expect(page.querySelector('[aria-label="Gráfico de dona de tareas por estado"]')).not.toBeNull();
+    expect(page.querySelector('[aria-label="Gráfico de barras de horas estimadas y registradas"]')).not.toBeNull();
   });
 
-  it('keeps the doughnut chart valid when there are no tasks', () => {
+  it('keeps accessible chart summaries in sync when there are no tasks', () => {
     component.tasks.set([]);
     fixture.detectChanges();
 
-    expect(component.chartTaskTotal()).toBe(1);
-    expect(component.statusArcLength(component.todoCount())).toBe('0 276.46');
-    expect(fixture.nativeElement.textContent).toContain('0tareas');
+    expect(fixture.nativeElement.textContent).toContain(
+      '0 por hacer · 0 en curso · 0 completadas',
+    );
+    expect(fixture.nativeElement.textContent).toContain('0 h estimadas · 0 h registradas');
   });
 });
 

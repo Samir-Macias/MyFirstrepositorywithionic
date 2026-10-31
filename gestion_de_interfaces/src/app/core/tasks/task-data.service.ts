@@ -3,6 +3,7 @@ import { RealtimeChannel, User } from '@supabase/supabase-js';
 import { Subtask, Task, TaskPriority, TaskStatus } from '../models/task.model';
 import { ActivityEntry, ActivityLogRow, TaskRow } from '../models/task-row.model';
 import { SupabaseClientService } from '../supabase/supabase-client.service';
+import { formatDueDate, normalizeDueDate } from '../utils/date-format';
 
 export interface TaskInput {
   readonly title: string;
@@ -12,6 +13,7 @@ export interface TaskInput {
   readonly tags: readonly string[];
   readonly estimatedHours: number;
   readonly loggedHours: number;
+  readonly dueDate?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -50,6 +52,7 @@ export class TaskDataService {
         tags: this.readTags(input.tags),
         estimated_hours: this.readHours(input.estimatedHours, 'estimated_hours'),
         logged_hours: this.readHours(input.loggedHours, 'logged_hours'),
+        due_date: input.dueDate || null,
       })
       .select('*')
       .single();
@@ -73,6 +76,7 @@ export class TaskDataService {
         tags: this.readTags(input.tags),
         estimated_hours: this.readHours(input.estimatedHours, 'estimated_hours'),
         logged_hours: this.readHours(input.loggedHours, 'logged_hours'),
+        due_date: input.dueDate || null,
       })
       .eq('id', taskId)
       .select('*')
@@ -118,6 +122,31 @@ export class TaskDataService {
     }
 
     return (data as ActivityLogRow[]).map((row) => this.toActivityEntry(row));
+  }
+
+  async subscribeToActivityChanges(
+    onChange: () => void,
+    onError: (error: Error) => void,
+  ): Promise<() => void> {
+    const client = await this.supabase.getClient();
+    const channel: RealtimeChannel = client
+      .channel('public-activity-logs-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'activity_logs' },
+        () => onChange(),
+      )
+      .subscribe((status, error) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          onError(new Error(error?.message ?? `La suscripción Realtime terminó con estado ${status}.`));
+        }
+      });
+
+    return () => {
+      void client.removeChannel(channel).catch((error: unknown) => {
+        console.error('No se pudo cerrar el canal Realtime de actividad.', error);
+      });
+    };
   }
 
   async setStatus(taskId: string, status: TaskStatus): Promise<void> {
@@ -174,13 +203,14 @@ export class TaskDataService {
       id: row.id,
       createdByUserId: row.created_by_user_id,
       createdAt: row.created_at,
+      dueDate: normalizeDueDate(row.due_date),
       title: row.title,
       description: row.description ?? '',
       status: this.readStatus(row.status),
       priority: this.readPriority(row.priority),
       assignedUserName,
       assignedUserInitials: this.initials(assignedUserName),
-      dueLabel: 'Sin fecha límite',
+      dueLabel: formatDueDate(row.due_date),
       tags,
       subtasks,
       subtasksCompleted: completedSubtasks,
@@ -343,4 +373,5 @@ export class TaskDataService {
     const days = Math.round(hours / 24);
     return new Intl.RelativeTimeFormat('es', { numeric: 'auto' }).format(days, 'day');
   }
+
 }

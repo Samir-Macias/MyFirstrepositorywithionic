@@ -16,6 +16,7 @@ export interface TaskRow {
   readonly logged_hours: number;
   readonly created_at: string;
   readonly updated_at: string;
+  readonly due_date?: string | null;
 }
 
 export interface ActivityLogRow {

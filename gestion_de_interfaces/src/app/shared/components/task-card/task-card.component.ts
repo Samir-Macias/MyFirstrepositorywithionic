@@ -11,5 +11,6 @@ export class TaskCardComponent {
   readonly canDelete = input(false);
   readonly completionToggled = output<string>();
   readonly editRequested = output<Task>();
+  readonly editInEditorRequested = output<Task>();
   readonly deleteRequested = output<Task>();
 }

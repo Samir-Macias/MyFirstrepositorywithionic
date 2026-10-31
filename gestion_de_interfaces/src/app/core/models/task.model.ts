@@ -13,7 +13,7 @@ export interface Task {
   readonly createdByUserId: string;
   readonly createdAt: string;
   readonly updatedAt?: string;
-  readonly dueDate?: string;                    // Fecha ISO ("2026-10-10T11:00:00Z") requerida para el Calendario
+  readonly dueDate?: string | null;
 
   readonly title: string;
   readonly description: string;

@@ -1,0 +1,96 @@
+@use "../../../../styles/abstracts/variables" as v;
+
+.activity-feed {
+  max-width: 860px;
+  margin: 0 auto;
+  color: v.$color-text-main;
+  font-family: v.$font-stack;
+
+  &__back {
+    color: v.$color-primary;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+
+  &__header {
+    margin: 1.5rem 0;
+
+    h1 {
+      margin: 0.25rem 0;
+      font-size: 1.7rem;
+    }
+
+    p:last-child {
+      margin: 0;
+      color: v.$color-text-muted;
+    }
+  }
+
+  &__eyebrow {
+    margin: 0;
+    color: v.$color-primary;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  &__list {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem;
+    background: v.$color-surface;
+    border: 1px solid v.$color-border;
+    border-radius: 0.7rem;
+  }
+
+  &__avatar {
+    display: grid;
+    width: 2.4rem;
+    height: 2.4rem;
+    flex: 0 0 auto;
+    place-items: center;
+    color: v.$color-avatar-text;
+    background: v.$color-avatar-bg;
+    border-radius: 50%;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  &__copy {
+    min-width: 0;
+
+    p {
+      margin: 0;
+    }
+
+    time {
+      color: v.$color-text-muted;
+      font-size: 0.75rem;
+    }
+  }
+
+  &__empty,
+  &__error {
+    padding: 1rem;
+    background: v.$color-surface;
+    border: 1px solid v.$color-border;
+    border-radius: 0.7rem;
+  }
+
+  &__empty {
+    color: v.$color-text-muted;
+  }
+
+  &__error {
+    color: v.$color-danger;
+  }
+}

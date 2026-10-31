@@ -96,7 +96,8 @@ describe('TaskDataService', () => {
         subtasksTotal: 2,
         estimatedHours: 3,
         loggedHours: 1,
-        dueLabel: 'Sin fecha límite',
+        dueLabel: '10 oct',
+        dueDate: '2026-10-10',
       }),
     ]);
   });
@@ -154,6 +155,7 @@ describe('TaskDataService', () => {
         description: '  Descripción  ',
         status: 'TODO',
         priority: 'HIGH',
+        dueDate: '2026-10-10',
         tags: ['Equipo', ' Informe ', ''],
         estimatedHours: 3,
         loggedHours: 0,
@@ -170,6 +172,7 @@ describe('TaskDataService', () => {
         assigned_user_name: 'Lucía Martín',
         tags: ['Equipo', 'Informe'],
         subtasks: [],
+        due_date: '2026-10-10',
       }),
     );
   });
@@ -184,6 +187,7 @@ describe('TaskDataService', () => {
       tags: ['Equipo'],
       estimatedHours: 4,
       loggedHours: 1,
+      dueDate: '2026-10-10',
     });
 
     expect(query.update).toHaveBeenCalledWith(
@@ -192,6 +196,7 @@ describe('TaskDataService', () => {
         description: null,
         status: 'IN_PROGRESS',
         estimated_hours: 4,
+        due_date: '2026-10-10',
       }),
     );
     expect(updated.id).toBe('task-1');
@@ -237,6 +242,7 @@ describe('TaskDataService', () => {
       logged_hours: 1,
       created_at: '2026-10-27T10:00:00Z',
       updated_at: '2026-10-27T10:00:00Z',
+      due_date: '2026-10-10',
     };
   }
 });

@@ -79,6 +79,7 @@
 
   &__priority {
     flex: 0 0 auto;
+    padding-right: 0.2rem;
     color: v.$color-text-muted;
     font-size: 0.7rem;
     font-weight: 650;
@@ -124,6 +125,13 @@
 
   &__assignee {
     gap: 0.35rem;
+    min-width: 0;
+  }
+
+  &__assignee-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__avatar {
@@ -139,6 +147,13 @@
   }
 
   &__due {
+    max-width: 40%;
+    flex: 0 1 auto;
     margin-left: auto;
+    overflow: hidden;
+    padding-right: 0.2rem;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

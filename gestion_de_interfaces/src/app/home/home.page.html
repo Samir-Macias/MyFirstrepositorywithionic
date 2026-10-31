@@ -13,15 +13,45 @@
 
       <p class="sidebar__section-label">ESPACIO DE TRABAJO</p>
       <nav class="sidebar__nav">
-        <a class="sidebar__link sidebar__link--active" href="#overview" aria-current="page">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="3" y="3" width="7" height="7" rx="1.5" />
-            <rect x="14" y="3" width="7" height="7" rx="1.5" />
-            <rect x="14" y="14" width="7" height="7" rx="1.5" />
-            <rect x="3" y="14" width="7" height="7" rx="1.5" />
-          </svg>
-          <span>Resumen</span>
-        </a>
+        @for (item of navItems(); track item.path) {
+          <a class="sidebar__link" [routerLink]="item.path">
+            @switch (item.icon) {
+              @case ('dashboard') {
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                </svg>
+              }
+              @case ('calendar') {
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="16" rx="2" />
+                  <path d="M16 3v4M8 3v4M3 10h18" />
+                </svg>
+              }
+              @case ('people') {
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              }
+              @case ('shield') {
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z" />
+                  <path d="m9 12 2 2 4-4" />
+                </svg>
+              }
+              @case ('activity') {
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 12h4l3-8 4 16 3-8h4" />
+                </svg>
+              }
+            }
+            <span>{{ item.label }}</span>
+          </a>
+        }
         <a class="sidebar__link" href="#tasks">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M8 6h13M8 12h13M8 18h13" />
@@ -29,12 +59,6 @@
           </svg>
           <span>Tareas</span>
           <span class="sidebar__count">{{ pendingCount() }}</span>
-        </a>
-        <a class="sidebar__link" href="#activity">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 12h4l3-8 4 16 3-8h4" />
-          </svg>
-          <span>Actividad</span>
         </a>
       </nav>
 
@@ -125,6 +149,9 @@
             <span aria-hidden="true">＋</span>
             Nueva tarea
           </button>
+          <a class="welcome__button welcome__button--editor" routerLink="/workspace/task-editor">
+            Editor completo
+          </a>
         </section>
 
         <section class="stats-grid" aria-label="Resumen de productividad">
@@ -169,9 +196,17 @@
                 <h2 id="tasks-title">Mis tareas</h2>
                 <p>Organiza y sigue el trabajo de tu equipo.</p>
               </div>
-              <button class="panel__text-button" type="button" (click)="clearTaskFilters()">
-                Ver todas <span aria-hidden="true">→</span>
-              </button>
+              <div class="panel__header-actions">
+                <button class="panel__text-button" type="button" (click)="exportTasksCsv()">
+                  Exportar CSV
+                </button>
+                <button class="panel__text-button" type="button" (click)="exportTasksPdf()">
+                  Exportar PDF
+                </button>
+                <button class="panel__text-button" type="button" (click)="clearTaskFilters()">
+                  Ver todas <span aria-hidden="true">→</span>
+                </button>
+              </div>
             </div>
 
             <div class="filter-tabs" role="group" aria-label="Filtrar tareas por estado">
@@ -213,17 +248,13 @@
               @if (isLoadingTasks()) {
                 <p class="task-list__empty" role="status">Cargando tareas...</p>
               } @else {
-                @for (task of visibleTasks(); track task.id) {
-                  <app-task-card
-                    [task]="task"
-                    [canDelete]="task.createdByUserId === currentUserId()"
-                    (completionToggled)="toggleTaskCompletion($event)"
-                    (editRequested)="openEditTask($event)"
-                    (deleteRequested)="deleteTask($event)"
-                  />
-                } @empty {
-                <p class="task-list__empty">No hay tareas que coincidan con esta búsqueda.</p>
-                }
+                <app-data-table
+                  [tasks]="visibleTasks()"
+                  [currentUserId]="currentUserId()"
+                  (statusChange)="changeTaskStatus($event)"
+                  (editRequested)="openEditTask($event)"
+                  (deleteRequested)="deleteTask($event)"
+                />
               }
             </div>
           </section>
@@ -263,81 +294,14 @@
               </div>
             </section>
 
-            <section class="panel completion-panel" aria-labelledby="completion-title">
-              <div class="panel__header">
-                <div>
-                  <h2 id="completion-title">Estado de tareas</h2>
-                  <p>Distribución actual del espacio.</p>
-                </div>
-              </div>
-              <div class="completion-panel__content">
-                <div
-                  class="completion-chart"
-                  role="img"
-                  [attr.aria-label]="
-                    'Estado de ' +
-                    totalTaskCount() +
-                    ' tareas: ' +
-                    todoCount() +
-                    ' por hacer, ' +
-                    inProgressCount() +
-                    ' en curso y ' +
-                    completedCount() +
-                    ' completadas'
-                  "
-                >
-                  <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">
-                    <circle class="completion-chart__track" cx="60" cy="60" r="44" />
-                    <g class="completion-chart__segments" transform="rotate(-90 60 60)">
-                      <circle
-                        class="completion-chart__segment completion-chart__segment--todo"
-                        fill="none"
-                        cx="60"
-                        cy="60"
-                        r="44"
-                        [attr.stroke-dasharray]="statusArcLength(todoCount())"
-                      />
-                      <circle
-                        class="completion-chart__segment completion-chart__segment--progress"
-                        fill="none"
-                        cx="60"
-                        cy="60"
-                        r="44"
-                        [attr.stroke-dasharray]="statusArcLength(inProgressCount())"
-                        [attr.stroke-dashoffset]="statusArcOffset(todoCount())"
-                      />
-                      <circle
-                        class="completion-chart__segment completion-chart__segment--complete"
-                        fill="none"
-                        cx="60"
-                        cy="60"
-                        r="44"
-                        [attr.stroke-dasharray]="statusArcLength(completedCount())"
-                        [attr.stroke-dashoffset]="statusArcOffset(todoCount() + inProgressCount())"
-                      />
-                    </g>
-                  </svg>
-                  <span class="completion-chart__value">{{ totalTaskCount() }}</span>
-                  <span class="completion-chart__caption">tareas</span>
-                </div>
-                <ul class="completion-legend">
-                  <li>
-                    <span class="completion-legend__dot completion-legend__dot--todo"></span>
-                    <span>Por hacer</span>
-                    <strong>{{ todoCount() }}</strong>
-                  </li>
-                  <li>
-                    <span class="completion-legend__dot completion-legend__dot--progress"></span>
-                    <span>En curso</span>
-                    <strong>{{ inProgressCount() }}</strong>
-                  </li>
-                  <li>
-                    <span class="completion-legend__dot completion-legend__dot--complete"></span>
-                    <span>Completadas</span>
-                    <strong>{{ completedCount() }}</strong>
-                  </li>
-                </ul>
-              </div>
+            <section class="panel charts-panel" aria-label="Gráficas de productividad">
+              <app-dashboard-charts
+                [todoCount]="todoCount()"
+                [inProgressCount]="inProgressCount()"
+                [completedCount]="completedCount()"
+                [estimatedHours]="estimatedHours()"
+                [loggedHours]="loggedHours()"
+              />
             </section>
 
             <section class="panel activity-panel" id="activity" aria-labelledby="activity-title">
@@ -417,6 +381,14 @@
             maxlength="2000"
             [(ngModel)]="taskForm.description"
           ></textarea>
+
+          <label for="task-due-date">Fecha límite</label>
+          <input
+            id="task-due-date"
+            name="dueDate"
+            type="date"
+            [(ngModel)]="taskForm.dueDate"
+          />
 
           <div class="task-form__row">
             <div>

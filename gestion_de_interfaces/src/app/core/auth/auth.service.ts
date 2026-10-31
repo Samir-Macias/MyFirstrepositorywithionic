@@ -1,10 +1,13 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { Session, User } from '@supabase/supabase-js';
 import { SupabaseClientService } from '../supabase/supabase-client.service';
+
+export type AppRole = 'USER' | 'CORP_ADMIN' | 'SUPER_ADMIN';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   readonly currentUser = signal<User | null>(null);
+  readonly roles = computed<AppRole[]>(() => this.readRoles(this.currentUser()));
 
   private authListenerStarted = false;
   private readonly supabase = inject(SupabaseClientService);
@@ -75,5 +78,23 @@ export class AuthService {
       this.currentUser.set(session?.user ?? null);
     });
     this.authListenerStarted = true;
+  }
+
+  private readRoles(user: User | null): AppRole[] {
+    if (!user) {
+      return [];
+    }
+
+    const metadata: Record<string, unknown> = user.app_metadata;
+    const roleValues = Array.isArray(metadata['roles'])
+      ? metadata['roles']
+      : [metadata['role']];
+    const allowedRoles: AppRole[] = ['USER', 'CORP_ADMIN', 'SUPER_ADMIN'];
+    const roles = roleValues.filter(
+      (role): role is AppRole =>
+        typeof role === 'string' && allowedRoles.includes(role as AppRole),
+    );
+
+    return roles.length > 0 ? roles : ['USER'];
   }
 }

@@ -1,0 +1,266 @@
+@use "../../../styles/abstracts/variables" as v;
+@use "../../../styles/abstracts/mixins" as m;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  padding: 1.5rem;
+  background: v.$color-page-bg;
+}
+
+.calendar-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 1440px;
+  margin: 0 auto;
+  font-family: v.$font-stack;
+
+  @include m.respond-to("desktop") {
+    grid-template-columns: 2.2fr 1fr;
+  }
+
+  &__loading,
+  &__error {
+    padding: 2rem;
+    text-align: center;
+    color: v.$color-text-muted;
+    background: v.$color-surface;
+    border-radius: 0.7rem;
+  }
+
+  &__error {
+    color: v.$color-danger;
+  }
+}
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+  background: v.$color-surface;
+  border: 1px solid v.$color-border;
+  border-radius: 0.7rem;
+
+  &__back {
+    grid-column: 1 / -1;
+    width: fit-content;
+    color: v.$color-primary;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  &__title {
+    margin: 0;
+    color: v.$color-text-main;
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  &__subtitle {
+    color: v.$color-text-muted;
+    font-size: 0.85rem;
+  }
+
+  &__nav {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__btn {
+    padding: 0.4rem 0.8rem;
+    color: v.$color-text-main;
+    background: v.$color-surface-muted;
+    border: 1px solid v.$color-border;
+    border-radius: 0.7rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      background: v.$color-border;
+    }
+  }
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.4rem;
+  padding: 1rem;
+  background: v.$color-surface;
+  border: 1px solid v.$color-border;
+  border-radius: 0.7rem;
+
+  &__weekday {
+    padding-bottom: 0.5rem;
+    color: v.$color-text-muted;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+  }
+}
+
+.calendar-day {
+  min-width: 0;
+  min-height: 85px;
+  padding: 0.4rem;
+  color: v.$color-text-main;
+  background: v.$color-surface-muted;
+  border: 1px solid transparent;
+  border-radius: 0.7rem;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &--selected {
+    border-color: v.$color-primary;
+  }
+
+  &:focus-visible {
+    outline: 3px solid v.$color-focus;
+  }
+
+  &--out-month {
+    opacity: 0.35;
+  }
+
+  &--today {
+    background: rgba(v.$color-primary, 0.08);
+  }
+
+  &--selected {
+    box-shadow: 0 0 0 2px rgba(v.$color-primary, 0.2);
+  }
+
+  &__number {
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  &__tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-top: 0.3rem;
+  }
+
+  &__more {
+    color: v.$color-text-muted;
+    font-size: 0.65rem;
+    font-weight: 600;
+  }
+}
+
+.task-chip {
+  display: block;
+  overflow: hidden;
+  padding: 0.15rem 0.35rem;
+  color: v.$color-primary;
+  background: rgba(v.$color-primary, 0.12);
+  border-radius: 4px;
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &--high {
+    color: v.$color-danger;
+    background: rgba(v.$color-danger, 0.12);
+  }
+
+  &--completed {
+    opacity: 0.6;
+    text-decoration: line-through;
+  }
+}
+
+.day-detail-panel {
+  padding: 1.25rem;
+  background: v.$color-surface;
+  border: 1px solid v.$color-border;
+  border-radius: 0.7rem;
+
+  &__date {
+    color: v.$color-primary;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  &__title {
+    margin: 0.25rem 0 1rem;
+    color: v.$color-text-main;
+    font-size: 1.1rem;
+  }
+
+  &__empty {
+    padding: 2rem 0;
+    color: v.$color-text-muted;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+}
+
+.task-detail-card {
+  margin-bottom: 0.75rem;
+  padding: 0.85rem;
+  background: v.$color-surface-muted;
+  border: 1px solid v.$color-border;
+  border-radius: 0.7rem;
+
+  &--completed {
+    opacity: 0.7;
+  }
+
+  &__header,
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__header {
+    margin-bottom: 0.4rem;
+  }
+
+  &__title {
+    margin: 0;
+    color: v.$color-text-main;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  &__badge {
+    padding: 0.15rem 0.4rem;
+    border-radius: 9999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+
+    &--high {
+      color: v.$color-danger;
+      background: rgba(v.$color-danger, 0.15);
+    }
+
+    &--medium {
+      color: v.$color-primary;
+      background: rgba(v.$color-primary, 0.15);
+    }
+
+    &--low {
+      color: v.$color-text-muted;
+      background: rgba(v.$color-text-muted, 0.15);
+    }
+  }
+
+  &__desc {
+    margin: 0.4rem 0;
+    color: v.$color-text-muted;
+    font-size: 0.825rem;
+  }
+
+}
