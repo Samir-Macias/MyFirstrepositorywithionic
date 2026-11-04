@@ -1,0 +1,12 @@
+{
+  "name": "m9-3-sass-fundamentals",
+  "version": "1.0.0",
+  "description": "Sesion didactica M9.3 - Preprocesamiento de CSS con Sass (Variables, Anidamiento, Mixins, Funciones y Extends)",
+  "scripts": {
+    "compile:sass": "sass scss/main.scss dist/css/main.css",
+    "watch:sass": "sass --watch scss/main.scss dist/css/main.css"
+  },
+  "devDependencies": {
+    "sass": "^1.77.0"
+  }
+}

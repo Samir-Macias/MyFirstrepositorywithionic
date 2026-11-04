@@ -1,0 +1,26 @@
+// =============================================================================
+// 1. ABSTRACTS / _VARIABLES.SCSS
+// Centraliza tokens de diseño: colores, espaciados, breakpoints y fuentes.
+// =============================================================================
+
+// Paleta de Color
+$color-primary: #0066cc;
+$color-primary-dark: #004c99;
+$color-secondary: #f4f6f8;
+$color-text: #222222;
+$color-text-light: #ffffff;
+$color-border: #e0e0e0;
+
+// Tipografía
+$font-main: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+$font-code: 'Courier New', Courier, monospace;
+
+// Espaciados (Escala base 8px)
+$spacing-xs: 0.25rem; // 4px
+$spacing-sm: 0.5rem;  // 8px
+$spacing-md: 1rem;    // 16px
+$spacing-lg: 2rem;    // 32px
+
+// Breakpoints
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;

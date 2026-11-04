@@ -1,0 +1,23 @@
+// =============================================================================
+// CONFIG / _FUNCTIONS.SCSS
+// =============================================================================
+// Las funciones en Sass (@function) son operaciones puras:
+// Reciben parámetros, realizan transformaciones y SIEMPRE retornan (@return) un valor.
+// No emiten código CSS por sí solas.
+// =============================================================================
+@use 'sass:math';
+
+// Convierte unidades en píxeles a REM basándose en 16px estándar.
+// Demuestra validación con unitless() y división con math.div().
+@function to-rem($pixels, $base: 16) {
+  @if math.is-unitless($pixels) {
+    @return math.div($pixels, $base) * 1rem;
+  } @else {
+    @error "La función to-rem() espera un número sin unidad, recibido: #{$pixels}";
+  }
+}
+
+// Función para modularizar el contraste de color o brillo
+@function tinted($color, $percentage) {
+  @return mix(#ffffff, $color, $percentage);
+}

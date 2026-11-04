@@ -1,0 +1,106 @@
+// =============================================================================
+// MODULES / _NESTING-DEMO.SCSS
+// =============================================================================
+// Demostración didáctica:
+// 1. Anidamiento de selectores hijos.
+// 2. Uso del selector padre '&' para pseudo-clases (:hover, :focus).
+// 3. Uso de '&' para sufijos BEM (__elemento, --modificador).
+// =============================================================================
+@use '../config/variables' as v;
+@use '../config/functions' as f;
+@use '../config/mixins' as m;
+@use '../config/placeholders';
+
+.header {
+  background: linear-gradient(135deg, v.$color-brand 0%, v.$color-accent 100%);
+  color: #ffffff;
+  padding: f.to-rem(36) 0;
+  text-align: center;
+  margin-bottom: f.to-rem(32);
+
+  // Anidamiento de clase hija
+  &__container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  &__title {
+    font-size: f.to-rem(28);
+    font-weight: 800;
+    margin-bottom: f.to-rem(8);
+
+    @include m.respond-to("md") {
+      font-size: f.to-rem(36);
+    }
+  }
+
+  &__subtitle {
+    font-size: f.to-rem(16);
+    opacity: 0.9;
+  }
+}
+
+.demo-wrapper {
+  width: 90%;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: f.to-rem(24);
+}
+
+.demo-card {
+  @extend %elevation-card;
+  padding: f.to-rem(24);
+
+  &__heading {
+    font-size: f.to-rem(20);
+    color: v.$color-text;
+    margin-bottom: f.to-rem(10);
+    padding-bottom: f.to-rem(6);
+    border-bottom: 2px solid v.$color-border;
+  }
+
+  &__text {
+    color: v.$color-text-muted;
+    margin-bottom: f.to-rem(18);
+  }
+}
+
+// Ejemplo de Barra de Navegación usando '&'
+.nav-demo {
+  &__list {
+    list-style: none;
+    @include m.flex-layout(row, flex-start, center);
+    gap: f.to-rem(12);
+  }
+
+  &__link {
+    display: inline-block;
+    padding: f.to-rem(8) f.to-rem(16);
+    border-radius: 6px;
+    color: v.$color-text;
+    text-decoration: none;
+    background-color: #e2e8f0;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    // Pseudo-clase con &
+    &:hover {
+      background-color: v.$color-brand;
+      color: #ffffff;
+    }
+
+    &--yellow{
+      background-color: yellow;
+      color: black
+    }
+
+    // Modificador con &
+    &--active {
+      background-color: v.$color-brand-dark;
+      color: #ffffff;
+    }
+  }
+}

@@ -1,0 +1,11 @@
+// =============================================================================
+// 2. BASE / _RESET.SCSS
+// Reseteo mínimo para unificar comportamientos entre navegadores.
+// =============================================================================
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}

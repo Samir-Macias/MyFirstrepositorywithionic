@@ -1,0 +1,7 @@
+{
+  "name": "saass_patron_7",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

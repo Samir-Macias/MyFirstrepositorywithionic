@@ -1,0 +1,14 @@
+// =============================================================================
+// 4. LAYOUT / _FOOTER.SCSS
+// Pie de página global.
+// =============================================================================
+@use '../1-abstracts/variables' as *;
+
+.main-footer {
+  text-align: center;
+  padding: $spacing-lg 0;
+  font-size: 0.875rem;
+  color: #666;
+  border-top: 1px solid $color-border;
+  margin-top: $spacing-lg;
+}

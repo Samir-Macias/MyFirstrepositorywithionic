@@ -1,0 +1,37 @@
+// =============================================================================
+// MODULES / _MIXINS-DEMO.SCSS
+// =============================================================================
+// Aplicación de los mixins declarados con @include y paso de argumentos.
+// =============================================================================
+@use '../config/variables' as v;
+@use '../config/functions' as f;
+@use '../config/mixins' as m;
+
+.btn-group {
+  @include m.flex-layout(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: f.to-rem(12);
+}
+
+.btn-custom {
+  font-family: inherit;
+  font-size: f.to-rem(15);
+  font-weight: 600;
+  padding: f.to-rem(10) f.to-rem(20);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+
+  // Invocación del mixin con diferentes argumentos
+  &--primary {
+    @include m.button-variant(v.$color-brand, #ffffff);
+  }
+
+  &--secondary {
+    @include m.button-variant(#64748b, #ffffff);
+  }
+
+  &--accent {
+    @include m.button-variant(v.$color-accent, #ffffff);
+  }
+}

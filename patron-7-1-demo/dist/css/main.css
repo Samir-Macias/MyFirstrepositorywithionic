@@ -1,0 +1,160 @@
+/* CSS precompilado inicial para visualización inmediata */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3 {
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  color: #111;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+
+a {
+  color: #0066cc;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+html {
+  font-size: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #222222;
+  background-color: #f4f6f8;
+  line-height: 1.6;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.main-header {
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 1rem 0;
+}
+.main-header__wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.main-header__logo {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+
+.grid-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  .grid-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .grid-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.main-footer {
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 0.875rem;
+  color: #666;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 2rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s ease-in-out;
+}
+.btn--primary {
+  background-color: #0066cc;
+  color: #ffffff;
+}
+.btn--primary:hover {
+  background-color: #004c99;
+  text-decoration: none;
+}
+.btn--outline {
+  background-color: transparent;
+  border-color: #0066cc;
+  color: #0066cc;
+}
+.btn--outline:hover {
+  background-color: #0066cc;
+  color: #ffffff;
+}
+
+.card {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.card__title {
+  margin-bottom: 0.5rem;
+}
+.card__content {
+  margin-bottom: 1rem;
+}
+
+.page-home .hero-banner {
+  padding: 2rem;
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+body.theme-dark {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+body.theme-dark .main-header,
+body.theme-dark .card {
+  background-color: #1e1e1e;
+  border-color: #333333;
+  color: #e0e0e0;
+}
+body.theme-dark h1,
+body.theme-dark h2,
+body.theme-dark h3 {
+  color: #ffffff;
+}

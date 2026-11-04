@@ -1,0 +1,22 @@
+// =============================================================================
+// 4. LAYOUT / _HEADER.SCSS
+// Barra de cabecera principal del sitio.
+// =============================================================================
+@use '../1-abstracts/variables' as *;
+
+.main-header {
+  background-color: #fff;
+  border-bottom: 1px solid $color-border;
+  padding: $spacing-md 0;
+
+  &__wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__logo {
+    font-weight: 700;
+    font-size: 1.25rem;
+  }
+}

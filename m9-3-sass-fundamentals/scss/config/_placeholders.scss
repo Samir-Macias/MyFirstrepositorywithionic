@@ -1,0 +1,28 @@
+// =============================================================================
+// CONFIG / _PLACEHOLDERS.SCSS
+// =============================================================================
+// Los Selectores Placeholder (%) son exclusivos de Sass.
+// NO se compilan en el CSS hasta que alguna regla los llama mediante @extend.
+// Evitan la repetición de código y crean grupos de selectores limpios en el CSS final.
+// =============================================================================
+@use 'variables' as v;
+@use 'functions' as f;
+
+%box-feedback {
+  padding: f.to-rem(16);
+  border-radius: 8px;
+  margin-bottom: f.to-rem(14);
+  font-size: f.to-rem(15);
+  line-height: 1.5;
+  border-left-width: 5px;
+  border-left-style: solid;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+%elevation-card {
+  background-color: v.$color-surface;
+  border: 1px solid v.$color-border;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}

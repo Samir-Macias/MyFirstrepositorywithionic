@@ -1,0 +1,51 @@
+// =============================================================================
+// CONFIG / _MIXINS.SCSS
+// =============================================================================
+// A diferencia de las funciones, los mixins (@mixin) SÍ emiten reglas y bloques CSS.
+// Permiten:
+// - Parámetros configurables con valores por defecto.
+// - Inyección de bloques enteros mediante @content.
+// =============================================================================
+@use 'variables' as v;
+@use 'sass:map';
+
+// 1. Mixin para Flexbox centrado con parámetros opcionales
+@mixin flex-layout($direction: row, $justify: center, $align: center) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+}
+
+// 2. Mixin Mobile-First utilizando mapas y la directiva @content
+@mixin respond-to($breakpoint-name) {
+  $target: map.get(v.$breakpoints, $breakpoint-name);
+
+  @if $target {
+    @media (min-width: $target) {
+      @content; // Aquí se inyectan las reglas que escriba el desarrollador
+    }
+  } @else {
+    @error "El breakpoint '#{$breakpoint-name}' no existe en el mapa \$breakpoints.";
+  }
+}
+
+// 3. Mixin de botón con argumentos dinámicos
+@mixin button-variant($bg-color, $text-color: #ffffff) {
+  background-color: $bg-color;
+  color: $text-color;
+  border: 1px solid darken-color($bg-color, 8%);
+
+  &:hover {
+    background-color: darken-color($bg-color, 6%);
+  }
+
+  &:active {
+    background-color: darken-color($bg-color, 12%);
+  }
+}
+
+// Helper interno para oscurecer colores usando sintaxis de color moderna
+@function darken-color($color, $percent) {
+  @return mix(#000000, $color, $percent);
+}

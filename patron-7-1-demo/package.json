@@ -1,0 +1,12 @@
+{
+  "name": "patron-7-1-demo",
+  "version": "1.0.0",
+  "description": "Plantilla didactica del Patron 7-1 de arquitectura SCSS/CSS3",
+  "scripts": {
+    "compile:sass": "sass scss/main.scss dist/css/main.css",
+    "watch:sass": "sass --watch scss/main.scss dist/css/main.css"
+  },
+  "devDependencies": {
+    "sass": "^1.77.0"
+  }
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M9.3 - Fundamentos de Preprocesamiento con Sass</title>
+  <link rel="stylesheet" href="dist/css/main.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header__container">
+      <h1 class="header__title">M9.3 Preprocesamiento CSS con Sass</h1>
+      <p class="header__subtitle">Demostración interactiva de características de Sass moderno (SCSS)</p>
+    </div>
+  </header>
+
+  <main class="demo-wrapper">
+
+    <!-- 1. Demostración de Nesting y BEM -->
+    <section class="demo-card">
+      <h2 class="demo-card__heading">1. Anidamiento (Nesting) y Selector &</h2>
+      <p class="demo-card__text">
+        El anidamiento permite reflejar la jerarquía HTML sin sobrecargar la especificidad, mientras que el selector padre <code>&</code> permite aplicar modificadores y estados.
+      </p>
+      <div class="nav-demo">
+        <ul class="nav-demo__list">
+          <li class="nav-demo__item"><a href="#" class="nav-demo__link nav-demo__link--active">Inicio</a></li>
+          <li class="nav-demo__item"><a href="#" class="nav-demo__link--yellow"  >Temario</a></li>
+          <li class="nav-demo__item"><a href="#" class="nav-demo__link">Ejercicios</a></li>
+          <li class="nav-demo__item"><a href="#" class="nav-demo__link">Cualquiera</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 2. Demostración de Mixins y Funciones -->
+    <section class="demo-card">
+      <h2 class="demo-card__heading">2. Mixins con Parámetros y Funciones</h2>
+      <p class="demo-card__text">
+        Los mixins encapsulan bloques reutilizables con argumentos dinámicos. La función <code>to-rem()</code> calcula tamaños fluidos sin valores fijos en píxeles.
+      </p>
+      <div class="btn-group">
+        <button class="btn-custom btn-custom--primary">Botón Primario</button>
+        <button class="btn-custom btn-custom--secondary">Botón Secundario</button>
+        <button class="btn-custom btn-custom--accent">Botón Acento</button>
+      </div>
+    </section>
+
+    <!-- 3. Demostración de Placeholders y Extend -->
+    <section class="demo-card">
+      <h2 class="demo-card__heading">3. Herencia con @extend y %placeholders</h2>
+      <p class="demo-card__text">
+        Los <code>%placeholders</code> definen patrones visuales comunes (como tarjetas de alerta o notificación) agrupando selectores en la salida CSS compilada.
+      </p>
+      <div class="feedback feedback--info">
+        <strong>Información:</strong> Este bloque hereda el esqueleto base mediante <code>%box-feedback</code>.
+      </div>
+      <div class="feedback feedback--warning">
+        <strong>Advertencia:</strong> Modificador con tono de advertencia reutilizando el mismo layout.
+      </div>
+      <div class="feedback feedback--success">
+        <strong>Éxito:</strong> Compilación CSS limpia sin duplicación innecesaria.
+      </div>
+      <div class="feedback feedback--danger">
+        <strong>Error</strong> Error en compilación CSS limpia sin duplicación innecesaria.
+      </div>
+    </section>
+
+    <!-- 4. Bucles y Generación Automática -->
+    <section class="demo-card">
+      <h2 class="demo-card__heading">4. Generación con bucles @each</h2>
+      <p class="demo-card__text">
+        Generación de badges utilitarios a partir de un mapa Sass iterado con <code>@each $nombre, $color in $mapa</code>.
+      </p>
+      <div class="badges-row">
+        <span class="badge badge--primary">Primary</span>
+        <span class="badge badge--success">Success</span>
+        <span class="badge badge--warning">Warning</span>
+        <span class="badge badge--danger">Danger</span>
+        <span class="badge badge--accent">Accent</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>Sesión M9.3 • Módulos Formativos de Desarrollo Web y Diseño de Interfaces</p>
+  </footer>
+
+</body>
+</html>

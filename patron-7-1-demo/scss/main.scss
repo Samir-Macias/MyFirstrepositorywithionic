@@ -1,0 +1,36 @@
+// =============================================================================
+// MAIN.SCSS - ARCHIVO MANIFIESTO (DIRECTOR DE ORQUESTA)
+// =============================================================================
+// REGLA DE ORO DEL PATRÓN 7-1:
+// Este archivo NO debe contener reglas CSS directamente.
+// Su única función es importar los partials (_) en el orden de especificidad
+// y dependencia adecuado para generar un único archivo CSS resultante.
+// =============================================================================
+
+// 1. ABSTRACTS: Herramientas Sass globales (NO generan CSS por sí solas)
+@use '1-abstracts/variables' as *;
+@use '1-abstracts/functions' as *;
+@use '1-abstracts/mixins' as *;
+
+// 2. VENDORS: Librerías y estilos de terceros (para poder sobreescribirlos luego)
+@use '7-vendors/normalize';
+
+// 3. BASE: Cimientos del proyecto, reseteos y reglas por defecto de etiquetas HTML
+@use '2-base/reset';
+@use '2-base/typography';
+@use '2-base/base';
+
+// 4. LAYOUT: Esqueleto estructural global de la aplicación (header, footer, rejilla)
+@use '4-layout/header';
+@use '4-layout/grid';
+@use '4-layout/footer';
+
+// 5. COMPONENTS: Bloques reutilizables e independientes (botones, tarjetas, modales)
+@use '3-components/buttons';
+@use '3-components/cards';
+
+// 6. PAGES: Estilos específicos que solo existen en una vista concreta
+@use '5-pages/home';
+
+// 7. THEMES: Sobreescrituras de diseño para diferentes modos o temas
+@use '6-themes/theme-dark';

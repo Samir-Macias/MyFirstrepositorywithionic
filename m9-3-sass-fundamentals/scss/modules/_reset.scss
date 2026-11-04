@@ -1,0 +1,30 @@
+// =============================================================================
+// MODULES / _RESET.SCSS
+// =============================================================================
+@use '../config/variables' as v;
+@use '../config/functions' as f;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: v.$font-family-base;
+  color: v.$color-text;
+  background-color: v.$color-bg-light;
+  line-height: 1.6;
+  padding-bottom: f.to-rem(40);
+}
+
+code {
+  font-family: v.$font-family-mono;
+  background-color: #e2e8f0;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: #c026d3;
+}

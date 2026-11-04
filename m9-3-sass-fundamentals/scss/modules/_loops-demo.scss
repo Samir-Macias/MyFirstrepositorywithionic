@@ -1,0 +1,41 @@
+// =============================================================================
+// MODULES / _LOOPS-DEMO.SCSS
+// =============================================================================
+// Estructuras de Control: Bucle @each para generar clases dinámicas.
+// En este caso recorre el mapa $theme-colors y crea automáticamente:
+// .badge--primary, .badge--success, .badge--warning, etc.
+// =============================================================================
+@use '../config/variables' as v;
+@use '../config/functions' as f;
+@use '../config/mixins' as m;
+
+.badges-row {
+  @include m.flex-layout(row, flex-start, center);
+  flex-wrap: wrap;
+  gap: f.to-rem(8);
+}
+
+.badge {
+  display: inline-block;
+  padding: f.to-rem(4) f.to-rem(10);
+  border-radius: 9999px;
+  font-size: f.to-rem(12);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  // Bucle @each sobre el Sass Map
+  @each $name, $color in v.$theme-colors {
+    &--#{$name} {
+      background-color: $color;
+      color: #ffffff;
+    }
+  }
+}
+
+.footer {
+  text-align: center;
+  color: v.$color-text-muted;
+  margin-top: f.to-rem(40);
+  font-size: f.to-rem(14);
+}

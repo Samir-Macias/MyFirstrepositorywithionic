@@ -1,0 +1,15 @@
+// =============================================================================
+// 5. PAGES / _HOME.SCSS
+// Estilos exclusivos de la página de inicio (Landing/Home).
+// =============================================================================
+@use '../1-abstracts/variables' as *;
+
+.page-home {
+  .hero-banner {
+    padding: $spacing-lg;
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    border-radius: 8px;
+    margin-bottom: $spacing-lg;
+    text-align: center;
+  }
+}

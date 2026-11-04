@@ -1,0 +1,13 @@
+// =============================================================================
+// 1. ABSTRACTS / _FUNCTIONS.SCSS
+// Funciones puras de cálculo: transforman valores y retornan un resultado.
+// =============================================================================
+
+// Convierte píxeles a rems asumiendo base de 16px
+@function rem($pixels) {
+  @if unitless($pixels) {
+    @return calc($pixels / 16) * 1rem;
+  } @else {
+    @error "La función rem() requiere un valor numérico sin unidad, recibido: #{$pixels}";
+  }
+}

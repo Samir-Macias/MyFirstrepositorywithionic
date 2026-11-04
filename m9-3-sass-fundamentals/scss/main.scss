@@ -1,0 +1,20 @@
+// =============================================================================
+// MAIN.SCSS - M9.3: PREPROCESAMIENTO DE CSS CON SASS
+// =============================================================================
+// Este archivo actúa como punto de entrada de la compilación.
+// Utiliza la sintaxis moderna @use introducida por el equipo de Sass (Dart Sass),
+// que sustituye al obsoleto @import evitando fugas al ámbito global.
+// =============================================================================
+
+// 1. Configuración, variables, funciones y mixins
+@use 'config/variables' as v;
+@use 'config/functions' as f;
+@use 'config/mixins' as m;
+@use 'config/placeholders';
+
+// 2. Reseteo y estilos estructurales base
+@use 'modules/reset';
+@use 'modules/nesting-demo';
+@use 'modules/mixins-demo';
+@use 'modules/extend-demo';
+@use 'modules/loops-demo';

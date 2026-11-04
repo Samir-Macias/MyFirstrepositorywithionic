@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M9.4 - Patrón 7-1 Arquitectura CSS3</title>
+  <link rel="stylesheet" href="dist/css/main.css">
+</head>
+<body class="page-home">
+
+  <!-- 4-layout/header -->
+  <header class="main-header">
+    <div class="container main-header__wrapper">
+      <div class="main-header__logo">Proyecto 7-1 Demo</div>
+      <button class="btn btn--outline" onclick="document.body.classList.toggle('theme-dark')">
+        Alternar Modo Oscuro
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- 5-pages/home -->
+    <section class="hero-banner">
+      <h1>Arquitectura CSS3 con Patrón 7-1</h1>
+      <p>Estructura modular, escalable y mantenible para hojas de estilo grandes.</p>
+    </section>
+
+    <!-- 4-layout/grid y 3-components/cards -->
+    <section class="grid-cards">
+      <article class="card">
+        <h2 class="card__title">1. Abstracts</h2>
+        <p class="card__content">Variables, mixins y funciones. La lógica pura que no emite CSS por sí misma.</p>
+        <a href="#" class="btn btn--primary">Saber más</a>
+      </article>
+
+      <article class="card">
+        <h2 class="card__title">2. Base & Layout</h2>
+        <p class="card__content">Define reseteos globales, tipografía y la distribución estructural (grid, flexbox).</p>
+        <a href="#" class="btn btn--primary">Saber más</a>
+      </article>
+
+      <article class="card">
+        <h2 class="card__title">3. Components</h2>
+        <p class="card__content">Elementos desacoplados e independientes como botones, modales y tarjetas.</p>
+        <a href="#" class="btn btn--primary">Saber más</a>
+      </article>
+    </section>
+  </main>
+
+  <!-- 4-layout/footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <p>Sesión M9.4 - Patrón 7-1 en Sass/SCSS</p>
+    </div>
+  </footer>
+
+</body>
+</html>

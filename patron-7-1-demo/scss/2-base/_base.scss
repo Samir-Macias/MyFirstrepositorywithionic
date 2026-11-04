@@ -1,0 +1,22 @@
+// =============================================================================
+// 2. BASE / _BASE.SCSS
+// Estilos globales de tags de nivel raíz (html, body, img).
+// =============================================================================
+@use '../1-abstracts/variables' as *;
+
+html {
+  font-size: 100%; // 16px por defecto
+}
+
+body {
+  font-family: $font-main;
+  color: $color-text;
+  background-color: $color-secondary;
+  line-height: 1.6;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}

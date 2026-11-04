@@ -1,0 +1,40 @@
+// =============================================================================
+// CONFIG / _VARIABLES.SCSS
+// =============================================================================
+// En Sass, las variables inician con '$'. Soportan tipos de datos como:
+// colores, strings, números con unidades, booleanos, listas y mapas.
+// =============================================================================
+
+// --- 1. Variables de Color Primitivas ---
+$color-brand: #3b82f6;
+$color-brand-dark: #1d4ed8;
+$color-accent: #8b5cf6;
+$color-bg-light: #f8fafc;
+$color-surface: #ffffff;
+$color-text: #1e293b;
+$color-text-muted: #64748b;
+$color-border: #e2e8f0;
+
+// --- 2. Tipografía y Espaciado ---
+$font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+$font-family-mono: 'Fira Code', Consolas, Monaco, monospace;
+
+$space-unit: 1rem; // 16px por defecto
+
+// --- 3. Sass Map (Diccionario Clave-Valor) ---
+// Estructura de datos muy potente para iteraciones (@each) o acceso por clave (map.get)
+$theme-colors: (
+  "primary": #2563eb,
+  "success": #10b981,
+  "warning": #f59e0b,
+  "danger":  #ef4444,
+  "accent":  #8b5cf6
+);
+
+// --- 4. Breakpoints para Media Queries ---
+$breakpoints: (
+  "sm": 576px,
+  "md": 768px,
+  "lg": 1024px,
+  "xl": 1280px
+);

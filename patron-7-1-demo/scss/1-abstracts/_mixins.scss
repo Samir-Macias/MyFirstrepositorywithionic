@@ -1,0 +1,23 @@
+// =============================================================================
+// 1. ABSTRACTS / _MIXINS.SCSS
+// Bloques de estilos parametrizables o atajos de sintaxis (p.ej. media queries).
+// =============================================================================
+@use 'variables' as *;
+
+// Mixin para Media Queries Mobile-First
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == 'tablet' {
+    @media (min-width: $breakpoint-md) { @content; }
+  } @else if $breakpoint == 'desktop' {
+    @media (min-width: $breakpoint-lg) { @content; }
+  } @else {
+    @warn "No existe el breakpoint: #{$breakpoint}.";
+  }
+}
+
+// Mixin para Flexbox centrado
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -1,0 +1,33 @@
+// =============================================================================
+// MODULES / _EXTEND-DEMO.SCSS
+// =============================================================================
+// Uso de @extend con placeholders (%).
+// Los 3 selectores (.feedback--info, .feedback--warning, .feedback--success)
+// compartirán el bloque común de %box-feedback en una sola regla agrupada.
+// =============================================================================
+@use '../config/placeholders';
+@use '../config/variables' as v;
+@use 'sass:map';
+
+.feedback {
+  @extend %box-feedback;
+
+  &--info {
+    border-left-color: map.get(v.$theme-colors, "primary");
+    background-color: #eff6ff;
+  }
+
+  &--warning {
+    border-left-color: map.get(v.$theme-colors, "warning");
+    background-color: #fffbeb;
+  }
+
+  &--success {
+    border-left-color: map.get(v.$theme-colors, "success");
+    background-color: #ecfdf5;
+  }
+  &--danger{
+    border-left-color: map.get(v.$theme-colors, "danger");
+    background-color: #e50d0637;
+  }
+}

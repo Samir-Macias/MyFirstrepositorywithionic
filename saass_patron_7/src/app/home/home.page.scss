@@ -1,0 +1,26 @@
+.titulo {
+  color: red;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.boton-contenedor {
+  display: flex;
+  justify-content: flex-end;
+
+  ion-button {
+    --background: blue;
+    --color: white;
+  }
+}
+
+.imagen-contenedor {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.imagen {
+  width: 150px;
+  border: 3px solid green;
+}

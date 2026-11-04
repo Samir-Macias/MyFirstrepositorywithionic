@@ -1,0 +1,24 @@
+// =============================================================================
+// 2. BASE / _TYPOGRAPHY.SCSS
+// Jerarquía tipográfica base (h1-h6, párrafos, enlaces).
+// =============================================================================
+@use '../1-abstracts/variables' as *;
+
+h1, h2, h3 {
+  line-height: 1.2;
+  margin-bottom: $spacing-sm;
+  color: #111;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+
+a {
+  color: $color-primary;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

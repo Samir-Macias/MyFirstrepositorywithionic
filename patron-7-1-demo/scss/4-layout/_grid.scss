@@ -1,0 +1,28 @@
+// =============================================================================
+// 4. LAYOUT / _GRID.SCSS
+// Estructura contenedora y rejillas de distribución.
+// =============================================================================
+@use '../1-abstracts/variables' as *;
+@use '../1-abstracts/mixins' as *;
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-md 0;
+}
+
+.grid-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-md;
+
+  // En tablet pasamos a 2 columnas y en desktop a 3
+  @include respond-to('tablet') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include respond-to('desktop') {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

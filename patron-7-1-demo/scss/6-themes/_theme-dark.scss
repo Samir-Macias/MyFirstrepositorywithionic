@@ -1,0 +1,19 @@
+// =============================================================================
+// 6. THEMES / _THEME-DARK.SCSS
+// Sobreescritura selectiva de colores y contrastes para modo oscuro.
+// =============================================================================
+body.theme-dark {
+  background-color: #121212;
+  color: #e0e0e0;
+
+  .main-header,
+  .card {
+    background-color: #1e1e1e;
+    border-color: #333333;
+    color: #e0e0e0;
+  }
+
+  h1, h2, h3 {
+    color: #ffffff;
+  }
+}

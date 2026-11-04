@@ -1,0 +1,40 @@
+// =============================================================================
+// 3. COMPONENTS / _BUTTONS.SCSS
+// Componente de botón reutilizable con modificadores.
+// =============================================================================
+@use '../1-abstracts/variables' as *;
+@use '../1-abstracts/mixins' as *;
+
+.btn {
+  display: inline-block;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s ease-in-out;
+
+  // Modificador Primario
+  &--primary {
+    background-color: $color-primary;
+    color: $color-text-light;
+
+    &:hover {
+      background-color: $color-primary-dark;
+      text-decoration: none;
+    }
+  }
+
+  // Modificador Outline
+  &--outline {
+    background-color: transparent;
+    border-color: $color-primary;
+    color: $color-primary;
+
+    &:hover {
+      background-color: $color-primary;
+      color: $color-text-light;
+    }
+  }
+}
