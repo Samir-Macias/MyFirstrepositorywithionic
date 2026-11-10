@@ -1,4 +1,5 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonIcon } from '@ionic/react';
+import { addCircleOutline } from 'ionicons/icons';
 
 import ExploreContainer from '../components/ExploreContainer';
 import './Home.css';
@@ -21,6 +22,12 @@ const Home: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <ExploreContainer />
+        <div style={{ padding: '20px', marginTop: '20px' }}>
+          <IonButton expand="block" routerLink="/new-client" color="success">
+            <IonIcon slot="start" icon={addCircleOutline}></IonIcon>
+            Nuevo Cliente
+          </IonButton>
+        </div>
       </IonContent>
     </IonPage>
   );
