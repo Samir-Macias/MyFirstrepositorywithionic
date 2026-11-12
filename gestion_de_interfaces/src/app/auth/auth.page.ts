@@ -68,18 +68,31 @@ export class AuthPage {
       }
 
       const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-      const targetUrl = returnUrl?.startsWith('/workspace') || returnUrl?.startsWith('/admin')
-        ? returnUrl
-        : this.auth.roles().includes('SUPER_ADMIN')
-          ? '/admin/super-panel'
-          : '/workspace';
-      await this.router.navigateByUrl(targetUrl);
+      await this.router.navigateByUrl(this.auth.postSignInUrl(returnUrl));
     } catch (error) {
       this.errorMessage.set(
         error instanceof Error ? error.message : 'Se produjo un error inesperado.',
       );
     } finally {
-      this.isSubmitting.set(false      );
+      this.isSubmitting.set(false);
+    }
+  }
+
+  async signInWithGoogle(): Promise<void> {
+    if (this.isSubmitting()) {
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    this.errorMessage.set('');
+    this.noticeMessage.set('');
+    try {
+      await this.auth.signInWithGoogle(this.route.snapshot.queryParamMap.get('returnUrl'));
+    } catch (error) {
+      this.errorMessage.set(
+        error instanceof Error ? error.message : 'No se pudo iniciar sesión con Google.',
+      );
+      this.isSubmitting.set(false);
     }
   }
 }

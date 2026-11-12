@@ -6,10 +6,16 @@ import { AuthPage } from './auth.page';
 describe('AuthPage', () => {
   let component: AuthPage;
   let fixture: ComponentFixture<AuthPage>;
-  let auth: { signUp: ReturnType<typeof vi.fn> };
+  let auth: {
+    signUp: ReturnType<typeof vi.fn>;
+    signInWithGoogle: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
-    auth = { signUp: vi.fn().mockResolvedValue(false) };
+    auth = {
+      signUp: vi.fn().mockResolvedValue(false),
+      signInWithGoogle: vi.fn().mockResolvedValue(undefined),
+    };
 
     await TestBed.configureTestingModule({
       imports: [AuthPage],
@@ -48,5 +54,24 @@ describe('AuthPage', () => {
       'Usuario Nuevo',
     );
     expect(component.noticeMessage()).toContain('Si la cuenta puede registrarse');
+  });
+
+  it('starts Google authentication even when the form is empty', async () => {
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('.auth-google');
+    expect(button.disabled).toBe(false);
+    button.click();
+    await fixture.whenStable();
+
+    expect(auth.signInWithGoogle).toHaveBeenCalledWith(null);
+    expect(component.isSubmitting()).toBe(true);
+  });
+
+  it('displays Google authentication errors and allows retrying', async () => {
+    auth.signInWithGoogle.mockRejectedValueOnce(new Error('Proveedor no disponible'));
+
+    await component.signInWithGoogle();
+
+    expect(component.errorMessage()).toBe('Proveedor no disponible');
+    expect(component.isSubmitting()).toBe(false);
   });
 });

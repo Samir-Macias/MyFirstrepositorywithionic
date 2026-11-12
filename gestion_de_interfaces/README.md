@@ -22,6 +22,13 @@ Funciones principales:
 
 La portada pública se encuentra en `/` e incluye enlaces a `/login` y `/register`.
 
+El acceso con Google usa Supabase Auth en la versión web. En **Authentication → URL Configuration**
+de Supabase, añade `https://TU-DOMINIO/auth/callback` a las URLs de redirección y, para
+desarrollo local, `http://localhost:4200/auth/callback`. En Google Cloud, el origen autorizado
+es el dominio de la app sin ruta; la URI de redirección autorizada es la callback del proyecto
+Supabase que aparece en el proveedor de Google. Las credenciales privadas se configuran solo en
+Supabase, no en la aplicación. Android e iOS requieren una integración OAuth nativa adicional.
+
 Decisiones de comportamiento a tener en cuenta:
 
 - **Añadir usuario:** si el correo ya tiene cuenta, se vincula al instante; si no, queda como *invitación pendiente* y se une a la organización cuando se registre con ese correo.
