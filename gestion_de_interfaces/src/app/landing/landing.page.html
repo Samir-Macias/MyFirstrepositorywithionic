@@ -1,0 +1,61 @@
+<ion-content [fullscreen]="true">
+  <div class="landing">
+    <header class="header">
+      <a class="brand" routerLink="/" aria-label="Taskflow, inicio">
+        <span class="brand__mark" aria-hidden="true">✓</span>
+        <span>taskflow</span>
+      </a>
+      <nav class="header__nav" aria-label="Acceso">
+        <a class="header__login" routerLink="/login">Iniciar sesión</a>
+        <a class="button button--small" routerLink="/register">Crear cuenta <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__copy">
+          <p class="eyebrow"><span aria-hidden="true"></span> TU ESPACIO DE TRABAJO</p>
+          <h1 id="hero-title">Menos pendientes.<br><em>Más avances.</em></h1>
+          <p class="hero__description">
+            Organiza tus tareas, conecta con tu equipo y sigue cada avance en un solo lugar.
+            Trabajar juntos nunca había sido tan sencillo.
+          </p>
+          <div class="hero__actions">
+            <a class="button button--primary" routerLink="/register">Empieza ahora <span aria-hidden="true">→</span></a>
+            <a class="button button--outline" routerLink="/login">Ya tengo una cuenta</a>
+          </div>
+          <p class="hero__note"><span aria-hidden="true">✦</span> Un espacio para pasar de las ideas a la acción.</p>
+        </div>
+
+        <app-landing-preview aria-hidden="true" />
+      </section>
+
+      <section class="features" aria-labelledby="features-title">
+        <div class="features__intro">
+          <p class="eyebrow"><span aria-hidden="true"></span> HECHO PARA TU DÍA A DÍA</p>
+          <h2 id="features-title">Todo lo que necesitas para avanzar.</h2>
+          <p>Un espacio compartido para que las cosas importantes no se pierdan de vista.</p>
+        </div>
+        <div class="features__grid">
+          <article class="feature">
+            <span class="feature__icon feature__icon--purple" aria-hidden="true">✓</span>
+            <h3>Tareas claras</h3>
+            <p>Organiza el trabajo por estado, prioridad y fecha de entrega.</p>
+          </article>
+          <article class="feature">
+            <span class="feature__icon feature__icon--blue" aria-hidden="true">◷</span>
+            <h3>Tu tiempo, a la vista</h3>
+            <p>Consulta el calendario y mantén a la vista las próximas fechas.</p>
+          </article>
+          <article class="feature">
+            <span class="feature__icon feature__icon--orange" aria-hidden="true">✦</span>
+            <h3>Mejor en equipo</h3>
+            <p>Comparte un espacio de trabajo, asigna tareas y sigue la actividad.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer"><span>taskflow</span> <span>Un espacio para avanzar, juntos.</span></footer>
+  </div>
+</ion-content>

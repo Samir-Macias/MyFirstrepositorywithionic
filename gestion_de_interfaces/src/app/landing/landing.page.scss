@@ -1,0 +1,137 @@
+@use '../../styles/abstracts/variables' as v;
+
+:host { display: block; height: 100%; }
+
+.landing {
+  min-height: 100%;
+  background: v.$color-page-bg;
+  color: v.$color-text-main;
+}
+
+.header, .hero, .features, .footer {
+  width: min(100% - 3rem, 74rem);
+  margin-inline: auto;
+}
+
+.header {
+  min-height: 5.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid v.$color-border;
+
+  &__nav { display: flex; align-items: center; gap: 1.8rem; }
+  &__login { color: v.$color-text-main; font-size: .88rem; font-weight: 700; text-decoration: none; }
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  color: #273a70;
+  font-size: 1.3rem;
+  font-weight: 750;
+  text-decoration: none;
+
+  &__mark { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border-radius: .5rem; background: #273a70; color: #fff; }
+}
+
+:host-context(html[data-theme='dark']) .brand { color: #c9caff; }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  min-height: 3.25rem;
+  padding: .8rem 1.3rem;
+  border: 1px solid transparent;
+  border-radius: .65rem;
+  font-size: .88rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+
+  &:hover { transform: translateY(-2px); }
+  &--small, &--primary { background: #273a70; color: #fff; }
+  &--small { min-height: 2.7rem; padding: .65rem 1rem; }
+  &--primary { box-shadow: 0 .6rem 1.2rem rgb(39 58 112 / 18%); }
+  &--outline { border-color: v.$color-border; background: v.$color-surface; color: v.$color-text-main; }
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: clamp(2.5rem, 7vw, 6rem);
+  min-height: 35rem;
+  padding-block: 5rem;
+
+  &__copy { max-width: 35rem; }
+  h1 { margin: 1.4rem 0; font-size: clamp(3rem, 5.4vw, 5rem); line-height: 1.05; letter-spacing: -.055em; }
+  h1 em { color: v.$color-primary; font-style: normal; }
+  &__description { max-width: 30rem; color: v.$color-text-muted; font-size: 1.05rem; line-height: 1.75; }
+  &__actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
+  &__note { margin-top: 2rem; color: v.$color-text-muted; font-size: .83rem; }
+  &__note span { margin-right: .4rem; color: v.$color-primary; }
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 0;
+  color: v.$color-primary;
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+
+  span { width: .45rem; height: .45rem; border-radius: 50%; background: currentColor; }
+}
+
+.feature__icon { display: grid; place-items: center; border-radius: .6rem; font-weight: 800; }
+.feature__icon--purple { background: #efedff; color: #6757d9; }
+.feature__icon--orange { background: #fff1df; color: #be7621; }
+.feature__icon--blue { background: #e9f2ff; color: #4285e8; }
+
+.features {
+  padding: 1.5rem 0 5rem;
+  &__intro { max-width: 38rem; }
+  h2 { margin: .9rem 0; font-size: clamp(1.7rem, 3vw, 2.4rem); letter-spacing: -.035em; }
+  &__intro > p:last-child { color: v.$color-text-muted; line-height: 1.6; }
+  &__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+}
+
+.feature {
+  padding: 1.5rem;
+  border: 1px solid v.$color-border;
+  border-radius: .9rem;
+  background: v.$color-surface;
+  &__icon { width: 2.5rem; height: 2.5rem; font-size: 1.1rem; }
+  h3 { margin: 1.2rem 0 .45rem; font-size: 1rem; }
+  p { margin: 0; color: v.$color-text-muted; font-size: .88rem; line-height: 1.6; }
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 0 2rem;
+  border-top: 1px solid v.$color-border;
+  color: v.$color-text-muted;
+  font-size: .8rem;
+  span:first-child { color: v.$color-text-main; font-weight: 800; }
+}
+
+@media (max-width: 760px) {
+  .header, .hero, .features, .footer { width: min(100% - 2rem, 35rem); }
+  .header { min-height: 5rem; }
+  .header__nav { gap: .8rem; }
+  .header__login { font-size: .8rem; }
+  .button--small { padding-inline: .7rem; font-size: .8rem; }
+  .hero { grid-template-columns: 1fr; min-height: 0; gap: 2rem; padding-block: 3.5rem; }
+  .hero h1 { font-size: clamp(2.7rem, 10vw, 4rem); }
+  .features__grid { grid-template-columns: 1fr; }
+  .features { padding-bottom: 3rem; }
+}

@@ -20,8 +20,12 @@ export interface SupabaseTaskRow {
   readonly logged_hours: number | string;
 }
 
+type SupabaseTaskWritableRow = Omit<
+  SupabaseTaskRow,
+  'created_by_user_id' | 'id' | 'created_at' | 'updated_at'
+>;
 type SupabaseTaskWrite = {
-  -readonly [Key in keyof SupabaseTaskRow]?: SupabaseTaskRow[Key];
+  -readonly [Key in keyof SupabaseTaskWritableRow]?: SupabaseTaskWritableRow[Key];
 };
 
 export class TaskMapper {
@@ -56,7 +60,6 @@ export class TaskMapper {
   static toSupabase(task: Partial<Task>): SupabaseTaskWrite {
     const row: SupabaseTaskWrite = {};
 
-    if (task.createdByUserId !== undefined) row.created_by_user_id = task.createdByUserId;
     if (task.dueDate !== undefined) row.due_date = task.dueDate;
     if (task.title !== undefined) row.title = task.title;
     if (task.description !== undefined) row.description = task.description;

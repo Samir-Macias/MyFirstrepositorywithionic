@@ -6,7 +6,7 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'login',
+    loadComponent: () => import('./landing/landing.page').then((m) => m.LandingPage),
   },
   {
     path: 'login',

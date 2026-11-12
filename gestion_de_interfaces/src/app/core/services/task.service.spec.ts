@@ -137,11 +137,11 @@ describe('TaskService', () => {
     expect(query.insert).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Nueva tarea',
-        created_by_user_id: 'user-1',
         tags: ['Diseño'],
         due_date: '2026-10-10',
       }),
     );
+    expect(query.insert.mock.calls[0]?.[0]).not.toHaveProperty('created_by_user_id');
     expect(created.id).toBe('task-1');
     expect(service.tasks()).toEqual([created]);
   });
@@ -156,6 +156,7 @@ describe('TaskService', () => {
     expect(query.update).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'Tarea actualizada' }),
     );
+    expect(query.update.mock.calls[0]?.[0]).not.toHaveProperty('created_by_user_id');
 
     query.maybeSingle.mockResolvedValueOnce({ data: null, error: null });
     await expect(

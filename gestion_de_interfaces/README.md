@@ -20,6 +20,8 @@ Funciones principales:
 - Exportación de informes a CSV y PDF.
 - Modo noche, registro e inicio de sesión con Supabase Auth.
 
+La portada pública se encuentra en `/` e incluye enlaces a `/login` y `/register`.
+
 Decisiones de comportamiento a tener en cuenta:
 
 - **Añadir usuario:** si el correo ya tiene cuenta, se vincula al instante; si no, queda como *invitación pendiente* y se une a la organización cuando se registre con ese correo.
