@@ -71,3 +71,7 @@ testem.log
 .DS_Store
 Thumbs.db
 SECURITY-REVIEW.md
+
+# Internal reports (sensitive analysis - DO NOT COMMIT)
+.internal-reports/
+*.internal-reports/
