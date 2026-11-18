@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Confirmar Eliminación</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="confirm-delete-modal" role="alertdialog" aria-labelledby="modal-title" aria-describedby="modal-description">
+  <!-- Live region for screen reader announcements -->
+  <div aria-live="polite" aria-atomic="true" class="sr-only"></div>
+
+  <div class="modal-content">
+    <!-- Warning Icon -->
+    <div class="warning-icon">
+      <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+    </div>
+
+    <!-- Title (screen reader) -->
+    <h1 id="modal-title" class="sr-only">Confirmar eliminación de {{ resourceName }}</h1>
+
+    <!-- Warning Message -->
+    <ion-text>
+      <h2 id="modal-description">¿Eliminar {{ resourceName }}?</h2>
+      <p class="warning-text">
+        Esta acción no se puede deshacer. Se eliminará permanentemente.
+      </p>
+    </ion-text>
+
+    <!-- Error Message -->
+    <div *ngIf="error" class="error-message" role="alert">
+      <ion-text color="danger">
+        <p>{{ error }}</p>
+      </ion-text>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state" aria-busy="true">
+      <ion-spinner name="crescent" aria-label="Eliminando recurso..."></ion-spinner>
+      <p>Eliminando...</p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="button-group" [attr.aria-hidden]="isLoading">
+      <ion-button
+        fill="outline"
+        (click)="onCancel()"
+        [disabled]="isLoading"
+        aria-label="Cancelar eliminación"
+        title="Presiona ESC para cancelar">
+        Cancelar
+      </ion-button>
+
+      <ion-button
+        fill="solid"
+        color="danger"
+        (click)="onConfirm()"
+        [disabled]="isLoading"
+        aria-label="Confirmar eliminación"
+        title="Presiona Enter para confirmar">
+        <ion-spinner *ngIf="isLoading" name="crescent" slot="start"></ion-spinner>
+        Eliminar
+      </ion-button>
+    </div>
+
+    <!-- Keyboard Help Text -->
+    <div class="keyboard-hints" aria-label="Atajos de teclado disponibles">
+      <small>
+        <strong>Teclado:</strong>
+        <span>ESC</span> = Cancelar |
+        <span>Tab</span> = Navegar |
+        <span>Enter</span> = Confirmar
+      </small>
+    </div>
+  </div>
+</ion-content>

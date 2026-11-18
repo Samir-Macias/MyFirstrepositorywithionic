@@ -1,0 +1,165 @@
+.confirm-delete-modal {
+  --padding-top: 1.5rem;
+  --padding-bottom: 1.5rem;
+  --padding-start: 1.5rem;
+  --padding-end: 1.5rem;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.warning-icon {
+  display: flex;
+  justify-content: center;
+  font-size: 3rem;
+  color: #ff6b6b;
+  margin-bottom: 1rem;
+
+  ion-icon {
+    animation: shake 0.5s ease-in-out;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000;
+  margin: 0.5rem 0;
+}
+
+.warning-text {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+.error-message {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: #ffe0e0;
+  border-left: 4px solid #ff6b6b;
+  margin-top: 0.5rem;
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: #f5f5f5;
+  border-radius: 0.5rem;
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #666;
+  }
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+
+  ion-button {
+    min-width: 120px;
+    font-weight: 600;
+
+    &[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    &:focus {
+      outline: 3px solid #0078d4;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.keyboard-hints {
+  display: block;
+  padding: 0.75rem 1rem;
+  background-color: #f9f9f9;
+  border-radius: 0.4rem;
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+  margin-top: 1rem;
+  border: 1px solid #e0e0e0;
+
+  strong {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  span {
+    display: inline-block;
+    margin: 0 0.3rem;
+    padding: 0.2rem 0.4rem;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 0.3rem;
+    font-family: monospace;
+    font-weight: 500;
+  }
+}
+
+/* Screen reader only class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .modal-content {
+    gap: 1rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 0.75rem;
+
+    ion-button {
+      width: 100%;
+    }
+  }
+
+  .keyboard-hints {
+    display: none; // Hide on mobile
+  }
+}
