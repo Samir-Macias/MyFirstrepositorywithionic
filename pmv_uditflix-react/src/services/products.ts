@@ -1,8 +1,8 @@
-import { supabase } from '../config/supabase';
+import { getSupabase } from '../config/supabase';
 import type { Product } from '../models/product';
 
 export async function getProducts(): Promise<Product[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('products')
     .select('id, titulo, enlace_comic, enlace_teaser, enlace_video, imagen, fecha_creacion')
     .order('fecha_creacion', { ascending: false });
