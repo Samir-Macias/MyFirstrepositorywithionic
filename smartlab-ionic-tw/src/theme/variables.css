@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ion-color-primary: #2563eb;
+  --ion-color-primary-rgb: 37, 99, 235;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #2157cf;
+  --ion-color-primary-tint: #3b73ed;
+
+  --ion-background-color: #f2f0e9;
+  --ion-font-family: 'Arial', 'Helvetica Neue', sans-serif;
+}
+
+.studio-content {
+  --background: #f2f0e9;
+}
+
+.studio-content::part(scroll) {
+  overflow-x: hidden;
+}
+
+.nav-link {
+  position: relative;
+  width: fit-content;
+}
+
+.nav-link::after {
+  position: absolute;
+  right: 0;
+  bottom: -5px;
+  left: 0;
+  height: 2px;
+  background: #ff583d;
+  content: '';
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms ease;
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.project-shape {
+  position: absolute;
+  inset: 14% 12%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 2px solid #171714;
+  padding: 1rem;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  line-height: 0.78;
+  letter-spacing: -0.1em;
+  transition: transform 350ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.group:hover .project-shape {
+  transform: rotate(-4deg) scale(1.04);
+}
+
+.project-shape.editorial {
+  background: repeating-linear-gradient(135deg, #ff583d 0 15px, #f2f0e9 15px 20px);
+  box-shadow: 9px 9px 0 #171714;
+}
+
+.project-shape.editorial span:last-child {
+  align-self: flex-end;
+  color: #ff583d;
+  -webkit-text-stroke: 2px #171714;
+}
+
+.project-shape.object {
+  inset: 20% 20%;
+  align-items: center;
+  background: #c3f56a;
+  border-radius: 48% 48% 8% 8%;
+  box-shadow: 10px 10px 0 #171714;
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  text-align: center;
+  transform: rotate(7deg);
+}
+
+.project-shape.object span {
+  transform: rotate(-7deg);
+}
+
+.project-shape.system {
+  inset: 12%;
+  background: #171714;
+  color: #b8a7ff;
+  outline: 2px solid #171714;
+  outline-offset: 7px;
+  transform: rotate(-5deg);
+}
+
+.project-shape.system span:last-child {
+  align-self: flex-end;
+  color: #ff583d;
+}
+
+.marquee-track {
+  animation: marquee 26s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
